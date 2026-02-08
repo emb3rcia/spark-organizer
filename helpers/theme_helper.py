@@ -2,6 +2,8 @@
 
 import json
 import os
+import sys
+from PyQt6.QtWidgets import QMessageBox, QApplication
 
 default_themes = {
     "dark": {
@@ -228,33 +230,32 @@ default_themes = {
 config_path = os.path.join(os.path.dirname(__file__), "..", "config")
 os.makedirs(config_path, exist_ok=True)
 themes_file = os.path.join(config_path, "themes.json")
-themes_initialized = False
 
-
-def initializeThemes():
+def get_themes():
     if os.path.exists(themes_file):
-        with open(themes_file, "r") as f:
-            try:
+        try:
+            with open(themes_file, "r") as f:
                 themes_data = json.load(f)
-            except json.JSONDecodeError:
-                themes_data = {}
+                return themes_data
+        except json.JSONDecodeError:
+            return 1
     else:
-        themes_data = {}
+        tmp_file = themes_file + ".tmp"
+        with open(tmp_file, "w") as f:
+            json.dump(default_themes, f, indent=4)
+        os.replace(tmp_file, themes_file)
+        return default_themes.copy()
 
-    for name, theme in default_themes.items():
-        if name not in themes_data:
-            themes_data[name] = theme
-
+def overwrite_themes():
     tmp_file = themes_file + ".tmp"
     with open(tmp_file, "w") as f:
-        json.dump(themes_data, f, indent=4)
+        json.dump(default_themes, f, indent=4)
     os.replace(tmp_file, themes_file)
 
-    return themes_data
-
 def listThemes():
-    themes = []
-    with open(themes_file, "r") as f:
-        themes_json = json.load(f)
-        themes = list(themes_json.keys())
-        return themes
+    try:
+        with open(themes_file, "r") as f:
+            themes_json = json.load(f)
+            return list(themes_json.keys())
+    except json.JSONDecodeError:
+        return 1
