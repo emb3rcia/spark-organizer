@@ -41,9 +41,12 @@ class Label(QLabel):
         self.theme_colors = theme_colors
         self.label_type = label_type
         self.apply_theme()
-    
+
     def apply_theme(self):
-        if self.label_type == 1:
+        PRIMARY = 1
+        SECONDARY = 2
+        INVERTED = 3
+        if self.label_type == PRIMARY:
             self.setStyleSheet(
                 f"""
                 QLabel {{
@@ -54,7 +57,7 @@ class Label(QLabel):
                 }}
                 """
             )
-        elif self.label_type == 2:
+        elif self.label_type == SECONDARY:
             self.setStyleSheet(
                 f"""
                 QLabel {{
@@ -65,7 +68,7 @@ class Label(QLabel):
                 }}
                 """
             )
-        elif self.label_type == 3:
+        elif self.label_type == INVERTED:
             self.setStyleSheet(
                 f"""
                 QLabel {{
@@ -227,7 +230,7 @@ class ComboBox(QComboBox):
                 border: 1px solid {self.theme_colors['combo-box_border']};
                 border-radius: 6px;
             }}        
-            QComboBox:hover{{
+            QComboBox:hover {{
                 background-color: {self.theme_colors['combo-box_hover']};
             }}
             QComboBox::drop-down {{
@@ -260,21 +263,8 @@ class DateTimeEdit(QDateTimeEdit):
                 border: 2px solid {self.theme_colors['input']['input_border']};
                 border-radius: 6px;
             }}
-            QCalendarWidget {{
-                background-color: ;
-                border: 1px solid {self.theme_colors['button']['button_border']};
-            }}
-            QCalendarWidget QToolButton {{
-                color: {self.theme_colors['button']['button_text']};
-                background-color: {self.theme_colors['button']['button_background']};
-            }}
         """
         )
-        #QCalendarWidget QAbstractItemView:enabled {{
-            #    background-color: #f0f0f0;
-            #    selection-background-color: #3399ff;
-            #    selection-color: white;
-            #}}
     
     def update_theme(self, theme_colors):
         self.theme_colors = theme_colors

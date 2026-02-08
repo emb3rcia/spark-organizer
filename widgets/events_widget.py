@@ -1,9 +1,14 @@
-from PyQt6.QtWidgets import QComboBox, QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QSizePolicy, QHeaderView, QTableWidgetItem, QMessageBox
-from PyQt6.QtMultimedia import QSoundEffect
-from PyQt6.QtCore import QDateTime, QTimeZone, Qt, QUrl
-from styled_functions.styled_functions import ComboBox, Widget, Label, Button, LineEdit, DateTimeEdit, TableWidget
-from helpers.scheduled_helper import get_events, add_event, remove_event, Event
+import os
 import uuid
+
+from PyQt6.QtCore import QDateTime, QTimeZone, Qt, QUrl
+from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QSizePolicy, QHeaderView, QTableWidgetItem, QMessageBox
+
+from helpers.scheduled_helper import get_events, add_event, remove_event, Event
+from styled_functions.styled_functions import ComboBox, Widget, Label, Button, LineEdit, DateTimeEdit, TableWidget
+
+sound_effect_file = os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "error.wav")
 
 class events_widget(QWidget):
     def __init__(self, theme_data, tray):
@@ -13,7 +18,7 @@ class events_widget(QWidget):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
         self.sound_effect = QSoundEffect()
-        self.sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/error.wav"))
+        self.sound_effect.setSource(QUrl.fromLocalFile(sound_effect_file))
         self.sound_effect.setVolume(0.5)
         interact_widget = Widget(self.theme_data['main_backgrounds'])
         interact_layout = QHBoxLayout()
@@ -90,6 +95,9 @@ class events_widget(QWidget):
         msg.exec()
 
     def add_event_function(self):
+        if not self.control_title_lineedit.text().strip():
+            self.showPopup("Incorrect settings", "Title cannot be empty!")
+            return
         if self.control_type_combobox.currentText() == "event":
             if self.end_date.dateTime() < self.start_date.dateTime():
                 self.showPopup("Incorrect settings", "Start date can't be set to before end date")
@@ -134,7 +142,7 @@ class events_widget(QWidget):
 
             self.events_display_widget.setItem(row, 0, QTableWidgetItem(event['type']))
             self.events_display_widget.setItem(row, 1, QTableWidgetItem(event['title']))
-            self.events_display_widget.setItem(row, 2, QTableWidgetItem(str(event['start_time']).replace("T", " ") or ""))
+            self.events_display_widget.setItem(row, 2, QTableWidgetItem(str(event['start_time'].replace("T", " ") if event['start_time'] else "")))
             self.events_display_widget.setItem(row, 3, QTableWidgetItem((event['end_time']).replace("T", " ")))
 
             delete_button = Button("Delete", self.theme_data['button'], self.theme_data['text']['text_disabled'])

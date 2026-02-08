@@ -4,6 +4,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QSystemTrayIcon
 
 icon_file = os.path.join(os.path.dirname(__file__), "..", "assets", "svg", "icon.svg")
+
 class tray_helper:
     def __init__(self, app, main_window):
         self.app = app
@@ -11,7 +12,7 @@ class tray_helper:
 
         self.tray = QSystemTrayIcon(QIcon(icon_file), app)
 
-        self.tray.toolTip("spark-organizer")
+        self.tray.setToolTip("spark-organizer")
         self.tray.activated.connect(self.show_window)
         self.tray.show()
 

@@ -1,3 +1,4 @@
+import os
 import sys
 
 from PyQt6.QtCore import Qt, QUrl
@@ -47,6 +48,8 @@ def setTooltipStyle():
 setTooltipStyle()
 
 tray = tray_helper(app, window)
+
+sound_file_path = os.path.join(os.path.dirname(__file__), "assets", "sounds", "error.wav")
 
 event_timer_object = event_timer(theme, window, settings_data, tray, 5000)
 event_timer_object.start()
@@ -105,14 +108,14 @@ stats_button = Button("Stats", theme['button'], theme['text']['text_disabled'])
 quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
 
 tool_widget = StackedWidget(theme['main_backgrounds'])
-tool_widget.addWidget(timer_widget(theme, tray))
+tool_widget.addWidget(timer_widget(theme, tray, stats_widget))
 tool_widget.addWidget(events_widget(theme, tray))
 tool_widget.addWidget(reminder_widget(theme, tray))
 tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray))
 tool_widget.addWidget(stats_widget(theme))
 
 sound_effect = QSoundEffect()
-sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/error.wav"))
+sound_effect.setSource(QUrl.fromLocalFile(sound_file_path))
 sound_effect.setVolume(0.5)
 
 def showQuitPopup():

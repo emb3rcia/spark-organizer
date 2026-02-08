@@ -8,7 +8,7 @@ from PyQt6.QtMultimedia import QSoundEffect
 
 import os
 
-sound_file_path = os.path.join(__file__, "..", "assets", "sounds", "ding.wav")
+sound_effect_file = os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ding.wav")
 
 NOT_STARTED = 2
 RUNNING = 0
@@ -19,7 +19,7 @@ BREAK = 2
 LONGER_BREAK = 3
 
 class timer_widget(QWidget):
-    def __init__(self, theme_data, tray):
+    def __init__(self, theme_data, tray, stats_widget):
         super().__init__()
         self.tray = tray
         self.paused = NOT_STARTED
@@ -27,11 +27,12 @@ class timer_widget(QWidget):
         self.work_time_seconds = None
         self.break_time_seconds = None
         self.longer_break_time_seconds = None
+        self.stats_widget = stats_widget
         self.cycles = None
         self.passed_cycles = 0
         self.theme_data = theme_data
         self.sound_effect = QSoundEffect()
-        self.sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/ding.wav"))
+        self.sound_effect.setSource(QUrl.fromLocalFile(sound_effect_file))
         self.sound_effect.setVolume(0.5)
 
         self.timer_label = Label("00:00:00", self.theme_data['text'], 1)
@@ -136,9 +137,10 @@ class timer_widget(QWidget):
             self.remaining_seconds = self.work_time_seconds
             self.phase_label.setText("Work")
             self.updateDisplay()
+            self.tray.notify("Started timer!", "Work time!")
             self.lifecycle = WORK
             add_one_to_stat("work_started_count")
-            self.tray.notify("Started timer!", "Work time!")
+            self.stats_widget.update_stats()
             self.timer.start(1000)
             self.disableInputs(True)
             return
@@ -183,6 +185,7 @@ class timer_widget(QWidget):
             if self.lifecycle == WORK:
                 self.passed_cycles += 1
                 add_one_to_stat("cycles_completed_count")
+                self.stats_widget.update_stats()
                 if self.passed_cycles >= self.cycles:
                     if self.longer_break_time_seconds and self.longer_break_time_seconds > 0:
                         self.remaining_seconds = self.longer_break_time_seconds
@@ -194,9 +197,11 @@ class timer_widget(QWidget):
                     self.showPhasePopup("Longer break time!", "Wow! You finished your work cycles! Now you get longer break!")
                     self.phase_label.setText("Longer break")
                     self.passed_cycles = 0
-                    self.lifecycle = LONGER_BREAK
                     add_one_to_stat("work_completed_count")
                     add_one_to_stat("longer_break_started_count")
+                    self.stats_widget.update_stats()
+                    self.lifecycle = LONGER_BREAK
+
                 else:
                     if self.break_time_seconds and self.break_time_seconds > 0:
                         self.remaining_seconds = self.break_time_seconds
@@ -207,9 +212,11 @@ class timer_widget(QWidget):
                     self.tray.notify("Work time finished!", "Break time!")
                     self.showPhasePopup("Break time!", "Work session finished! Now you have break!")
                     self.phase_label.setText("Break")
-                    self.lifecycle = BREAK
                     add_one_to_stat("work_completed_count")
                     add_one_to_stat("break_started_count")
+                    self.stats_widget.update_stats()
+                    self.lifecycle = BREAK
+
             elif self.lifecycle == BREAK:
                 if self.work_time_seconds and self.work_time_seconds > 0:
                     self.remaining_seconds = self.work_time_seconds
@@ -223,6 +230,7 @@ class timer_widget(QWidget):
                 add_one_to_stat("work_started_count")
                 add_one_to_stat("break_completed_count")
                 add_one_to_stat("cycles_started_count")
+                self.stats_widget.update_stats()
                 self.lifecycle = WORK
             elif self.lifecycle == LONGER_BREAK:
                 if self.work_time_seconds and self.work_time_seconds > 0:
@@ -237,6 +245,7 @@ class timer_widget(QWidget):
                 add_one_to_stat("work_started_count")
                 add_one_to_stat("longer_break_completed_count")
                 add_one_to_stat("cycles_completed_count")
+                self.stats_widget.update_stats()
                 self.lifecycle = WORK
 
             if self.remaining_seconds <= 0:

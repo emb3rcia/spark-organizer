@@ -1,6 +1,6 @@
 import json
 import os
-from helpers.theme_helper import list_themes, default_themes, get_themes, add_theme
+from helpers.theme_helper import default_themes, get_themes, add_theme
 
 default_settings = {
     "theme": "dark",
@@ -22,7 +22,7 @@ def get_settings():
     else:
         settings_data = default_settings
 
-    all_themes = list_themes()
+    all_themes = get_themes()
     if all_themes == 1:
         return 2
     else:

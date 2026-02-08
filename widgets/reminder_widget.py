@@ -1,9 +1,13 @@
-from PyQt6.QtWidgets import QComboBox, QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QSizePolicy, QHeaderView, QTableWidgetItem, QMessageBox
-from PyQt6.QtMultimedia import QSoundEffect
-from PyQt6.QtCore import QDateTime, QTimeZone, Qt, QUrl
-from styled_functions.styled_functions import ComboBox, Widget, Label, Button, LineEdit, DateTimeEdit, TableWidget
-from helpers.scheduled_helper import get_reminders, add_reminder, remove_reminder, Reminder
 import uuid
+
+from PyQt6.QtCore import QDateTime, QTimeZone, Qt, QUrl
+from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QSizePolicy, QHeaderView, QTableWidgetItem, \
+    QMessageBox
+
+from helpers.scheduled_helper import get_reminders, add_reminder, remove_reminder, Reminder
+from styled_functions.styled_functions import Widget, Label, Button, LineEdit, DateTimeEdit, TableWidget
+
 
 class reminder_widget(QWidget):
     def __init__(self, theme_data, tray):
@@ -77,6 +81,9 @@ class reminder_widget(QWidget):
                 notification_time=self.notification_date.dateTime().toString(Qt.DateFormat.ISODate),
                 title=self.control_title_lineedit.text()
             )
+        elif not self.control_title_lineedit.text().strip():
+            self.showPopup("Incorrect settings", "Title cannot be empty!")
+            return
         else:
             self.showPopup("Incorrect settings", "Notification date can't be set to before now!")
             return
@@ -93,7 +100,7 @@ class reminder_widget(QWidget):
             self.reminders_display_widget.insertRow(row)
 
             self.reminders_display_widget.setItem(row, 0, QTableWidgetItem(reminder['title']))
-            self.reminders_display_widget.setItem(row, 1, QTableWidgetItem(str(reminder['notification_time']).replace("T", " ") or ""))
+            self.reminders_display_widget.setItem(row, 1, QTableWidgetItem(str(reminder['notification_time'].replace("T", " ") if reminder['notification_time'] else "")))
 
             delete_button = Button("Delete", self.theme_data['button'], self.theme_data['text']['text_disabled'])
             
