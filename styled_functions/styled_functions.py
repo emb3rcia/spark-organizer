@@ -15,6 +15,8 @@ class Button(QPushButton):
             QPushButton {{
                 background-color: {self.theme_colors['button_background']};
                 color: {self.theme_colors['button_text']};
+                border: 1px solid {self.theme_colors['button_border']};
+                border-radius: 6px;
             }}
             QPushButton:hover {{
                 background-color: {self.theme_colors['button_hover']};

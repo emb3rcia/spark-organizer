@@ -1,19 +1,29 @@
-from PyQt6.QtWidgets import QComboBox, QWidget, QVBoxLayout, QFormLayout, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QMessageBox
 from PyQt6.QtGui import QIntValidator
-from styled_functions.styled_functions import ComboBox, Widget, Label, LineEdit, Button
+
+from helpers.stats_helper import add_one_to_stat
+from styled_functions.styled_functions import Widget, Label, LineEdit, Button
 from PyQt6.QtCore import QTimer, Qt, QUrl
 from PyQt6.QtMultimedia import QSoundEffect
+
+import os
+
+sound_file_path = os.path.join(__file__, "..", "assets", "sounds", "ding.wav")
 
 NOT_STARTED = 2
 RUNNING = 0
 PAUSED = 1
+
+WORK = 1
+BREAK = 2
+LONGER_BREAK = 3
 
 class timer_widget(QWidget):
     def __init__(self, theme_data, tray):
         super().__init__()
         self.tray = tray
         self.paused = NOT_STARTED
-        self.lifecycle = 0 #0 = not started, 1 = work, 2 = break, 3 = longer break
+        self.lifecycle = 0 #0 = not started
         self.work_time_seconds = None
         self.break_time_seconds = None
         self.longer_break_time_seconds = None
@@ -39,7 +49,7 @@ class timer_widget(QWidget):
         interact_layout = QFormLayout()
         interact_widget.setLayout(interact_layout)
         main_layout.addWidget(interact_widget)
-        validator = QIntValidator(0, 9999)
+        validator = QIntValidator(1, 9999)
 
         work_time_label = Label("Work time:", self.theme_data['text'], 1)
         self.work_time_lineedit = LineEdit(self.theme_data['input'], self.theme_data['highlight'], self.theme_data['text']['text_disabled'])
@@ -126,7 +136,8 @@ class timer_widget(QWidget):
             self.remaining_seconds = self.work_time_seconds
             self.phase_label.setText("Work")
             self.updateDisplay()
-            self.lifecycle = 1
+            self.lifecycle = WORK
+            add_one_to_stat("work_started_count")
             self.tray.notify("Started timer!", "Work time!")
             self.timer.start(1000)
             self.disableInputs(True)
@@ -144,8 +155,8 @@ class timer_widget(QWidget):
         msg.setStyleSheet(f"""
             QMessageBox {{
                 background-color: {self.theme_data['main_backgrounds']['popup_background']};
-                color: {self.theme_data['text']['text_primary']}
-                border: 1px solid {self.theme_data['accent']['info']}
+                color: {self.theme_data['text']['text_primary']};
+                border: 1px solid {self.theme_data['accent']['info']};
             }}
         """
         )
@@ -169,8 +180,9 @@ class timer_widget(QWidget):
     def updateTimer(self):
         if self.remaining_seconds <= 0:
             self.timer.stop()
-            if self.lifecycle == 1:
+            if self.lifecycle == WORK:
                 self.passed_cycles += 1
+                add_one_to_stat("cycles_completed")
                 if self.passed_cycles >= self.cycles:
                     if self.longer_break_time_seconds and self.longer_break_time_seconds > 0:
                         self.remaining_seconds = self.longer_break_time_seconds
@@ -182,7 +194,9 @@ class timer_widget(QWidget):
                     self.showPhasePopup("Longer break time!", "Wow! You finished your work cycles! Now you get longer break!")
                     self.phase_label.setText("Longer break")
                     self.passed_cycles = 0
-                    self.lifecycle = 3
+                    self.lifecycle = LONGER_BREAK
+                    add_one_to_stat("work_completed_count")
+                    add_one_to_stat("longer_break_started_count")
                 else:
                     if self.break_time_seconds and self.break_time_seconds > 0:
                         self.remaining_seconds = self.break_time_seconds
@@ -193,8 +207,10 @@ class timer_widget(QWidget):
                     self.tray.notify("Work time finished!", "Break time!")
                     self.showPhasePopup("Break time!", "Work session finished! Now you have break!")
                     self.phase_label.setText("Break")
-                    self.lifecycle = 2
-            elif self.lifecycle == 2:
+                    self.lifecycle = BREAK
+                    add_one_to_stat("work_completed_count")
+                    add_one_to_stat("break_started_count")
+            elif self.lifecycle == BREAK:
                 if self.work_time_seconds and self.work_time_seconds > 0:
                     self.remaining_seconds = self.work_time_seconds
                     self.updateDisplay()
@@ -204,8 +220,10 @@ class timer_widget(QWidget):
                 self.tray.notify("Break time finished!", "Work time!")
                 self.showPhasePopup("Time to work!", "Your break ended, go to work!")
                 self.phase_label.setText("Work")
-                self.lifecycle = 1
-            elif self.lifecycle == 3:
+                add_one_to_stat("work_started_count")
+                add_one_to_stat("break_completed_count")
+                self.lifecycle = WORK
+            elif self.lifecycle == LONGER_BREAK:
                 if self.work_time_seconds and self.work_time_seconds > 0:
                     self.remaining_seconds = self.work_time_seconds
                     self.updateDisplay()
@@ -215,7 +233,10 @@ class timer_widget(QWidget):
                 self.tray.notify("Longer break time finished!", "Work time!")
                 self.showPhasePopup("Time to work!", "Your longer break ended, go to work!")
                 self.phase_label.setText("Work")
-                self.lifecycle = 1
+                add_one_to_stat("work_started_count")
+                add_one_to_stat("longer_break_completed_count")
+                add_one_to_stat("cycles_completed_count")
+                self.lifecycle = WORK
 
             if self.remaining_seconds <= 0:
                 self.resetTimers()

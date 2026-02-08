@@ -1,10 +1,13 @@
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget, QMessageBox
+
+from helpers.stats_helper import get_stats, overwrite_stats
 from styled_functions.styled_functions import Button, Label, LineEdit, MainWindow, TableWidget, Widget, StackedWidget, ComboBox, DateTimeEdit
 import sys
 from helpers.theme_helper import get_themes, overwrite_themes
 from helpers.scheduled_helper import get_events, get_reminders, update_events, update_reminders
 from helpers.settings_helper import get_settings, overwrite_settings
 from widgets.settings_widget import settings_widget
+from widgets.stats_widget import stats_widget
 from widgets.timer_widget import timer_widget
 from widgets.events_widget import events_widget
 from widgets.reminder_widget import reminder_widget
@@ -19,7 +22,7 @@ app = QApplication(sys.argv)
 def show_corrupt_popup(file_name):
     msg = QMessageBox()
     msg.setWindowTitle("Corrupted file")
-    msg.setText(f"{file_name} is corrupted!\nOverwrite with defaults or quit?")
+    msg.setText(f"{file_name} is corrupted!\nOverwrite with defaults or quit?\nWARNING: It WILL delete saved themes or current stats, settings, event or reminders. (depending which file is corrupted)")
     write_defaults = msg.addButton("Write defaults", QMessageBox.ButtonRole.AcceptRole)
     quit_btn = msg.addButton("Quit", QMessageBox.ButtonRole.RejectRole)
     msg.exec()
@@ -38,18 +41,18 @@ settings_data = get_settings()
 theme_data = get_themes()
 events = get_events()
 reminders = get_reminders()
+stats = get_stats()
 themes_overwritten = False
 
 if theme_data == 1:
     if show_corrupt_popup("config/themes.json"):
         overwrite_themes()
+        themes_overwritten = True
         theme_data = get_themes()
         if theme_data == 1:
-            if show_error_overwriting("config/themes.json"):
-                themes_overwritten = False
-                app.exit()
-            else:
-                app.exit()
+            show_error_overwriting("config/themes.json")
+            app.exit()
+            sys.exit(1)
     else:
         app.exit()
 if settings_data == 1:
@@ -57,34 +60,31 @@ if settings_data == 1:
         overwrite_settings()
         settings_data = get_settings()
         if settings_data == 1:
-            if show_error_overwriting("config/settings.json"):
-                app.exit()
-            else:
-                app.exit()
+            show_error_overwriting("config/settings.json")
+            app.exit()
+            sys.exit(1)
     else:
         app.exit()
 elif settings_data == 2:
     if show_corrupt_popup("config/themes.json"):
         overwrite_settings()
-        if not themes_overwritten == False:
-            get_themes()
+        if not themes_overwritten:
+            overwrite_themes()
         settings_data = get_settings()
         if settings_data == 1:
                 if show_corrupt_popup("config/settings.json"):
                     overwrite_settings()
                     settings_data = get_settings()
                     if settings_data == 1:
-                        if show_error_overwriting("config/settings.json"):
-                            app.exit()
-                        else:
-                            app.exit()
+                        show_error_overwriting("config/settings.json.json")
+                        app.exit()
+                        sys.exit(1)
                 else:
                     app.exit()
         if settings_data == 2:
-            if show_error_overwriting("config/themes.json"):
-                app.exit()
-            else:
-                app.exit()
+            show_error_overwriting("config/themes.json")
+            app.exit()
+            sys.exit(1)
     else:
         app.exit()
 if events == 1:
@@ -92,10 +92,9 @@ if events == 1:
         update_events([])
         events = get_events()
         if events == 1:
-            if show_error_overwriting("config/events.json"):
-                app.exit()
-            else:
-                app.exit()
+            show_error_overwriting("config/events.json")
+            app.exit()
+            sys.exit(1)
     else:
         app.exit()
 if reminders == 1:
@@ -104,10 +103,20 @@ if reminders == 1:
         reminders = get_reminders()
         print(reminders)
         if reminders == 1:
-            if show_error_overwriting("config/reminders.json"):
-                app.exit()
-            else:
-                app.exit()
+            show_error_overwriting("config/reminders.json")
+            app.exit()
+            sys.exit(1)
+    else:
+        app.exit()
+if stats == 1:
+    if show_corrupt_popup("config/stats.json"):
+        overwrite_stats()
+        stats = get_stats()
+        print(stats)
+        if stats == 1:
+            show_error_overwriting("config/stats.json")
+            app.exit()
+            sys.exit(1)
     else:
         app.exit()
 
@@ -185,13 +194,15 @@ pomodoro_timer_button = Button("Pomodoro Timer", theme['button'], theme['text'][
 events_button = Button("Events", theme['button'], theme['text']['text_disabled'])
 reminders_button = Button("Reminders", theme['button'], theme['text']['text_disabled'])
 settings_button = Button("Settings", theme['button'], theme['text']['text_disabled'])
+stats_button = Button("Stats", theme['button'], theme['text']['text_disabled'])
 quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
 
 tool_widget = StackedWidget(theme['main_backgrounds'])
 tool_widget.addWidget(timer_widget(theme, tray))
 tool_widget.addWidget(events_widget(theme, tray))
 tool_widget.addWidget(reminder_widget(theme, tray))
-tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray)) 
+tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray))
+tool_widget.addWidget(stats_widget(theme))
 
 sound_effect = QSoundEffect()
 sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/error.wav"))
@@ -264,11 +275,13 @@ tool_selector_layout.addWidget(pomodoro_timer_button)
 tool_selector_layout.addWidget(events_button)
 tool_selector_layout.addWidget(reminders_button)
 tool_selector_layout.addWidget(settings_button)
+tool_selector_layout.addWidget(stats_button)
 tool_selector_layout.addWidget(quit_button)
 pomodoro_timer_button.clicked.connect(lambda: tool_widget.setCurrentIndex(0))
 events_button.clicked.connect(lambda: tool_widget.setCurrentIndex(1))
 reminders_button.clicked.connect(lambda: tool_widget.setCurrentIndex(2))
 settings_button.clicked.connect(lambda: tool_widget.setCurrentIndex(3))
+stats_button.clicked.connect(lambda: tool_widget.setCurrentIndex(4))
 quit_button.clicked.connect(showQuitPopup)
 
 

@@ -1,9 +1,6 @@
 import json
 import os
-import sys
-from PyQt6.QtWidgets import QMessageBox, QApplication
 from helpers.theme_helper import list_themes, default_themes
-from helpers.scheduled_helper import EVENTS_FILE, REMINDERS_FILE
 
 default_settings = {
     "theme": "dark",
