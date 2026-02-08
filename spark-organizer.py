@@ -7,10 +7,12 @@ from helpers.settings_helper import get_settings, overwrite_settings
 from widgets.settings_widget import settings_widget
 from widgets.timer_widget import timer_widget
 from widgets.events_widget import events_widget
+from widgets.reminder_widget import reminder_widget
 from helpers.tray_helper import tray_helper
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtCore import Qt, QUrl
 from helpers.event_timer import event_timer
+from helpers.reminder_timer import reminder_timer
 
 app = QApplication(sys.argv)
 
@@ -36,14 +38,15 @@ settings_data = get_settings()
 theme_data = get_themes()
 events = get_events()
 reminders = get_reminders()
+themes_overwritten = False
 
 if theme_data == 1:
     if show_corrupt_popup("config/themes.json"):
         overwrite_themes()
         theme_data = get_themes()
-        print(theme_data)
         if theme_data == 1:
             if show_error_overwriting("config/themes.json"):
+                themes_overwritten = False
                 app.exit()
             else:
                 app.exit()
@@ -53,9 +56,32 @@ if settings_data == 1:
     if show_corrupt_popup("config/settings.json"):
         overwrite_settings()
         settings_data = get_settings()
-        print(settings_data)
         if settings_data == 1:
             if show_error_overwriting("config/settings.json"):
+                app.exit()
+            else:
+                app.exit()
+    else:
+        app.exit()
+elif settings_data == 2:
+    if show_corrupt_popup("config/themes.json"):
+        overwrite_settings()
+        if not themes_overwritten == False:
+            get_themes()
+        settings_data = get_settings()
+        if settings_data == 1:
+                if show_corrupt_popup("config/settings.json"):
+                    overwrite_settings()
+                    settings_data = get_settings()
+                    if settings_data == 1:
+                        if show_error_overwriting("config/settings.json"):
+                            app.exit()
+                        else:
+                            app.exit()
+                else:
+                    app.exit()
+        if settings_data == 2:
+            if show_error_overwriting("config/themes.json"):
                 app.exit()
             else:
                 app.exit()
@@ -65,7 +91,6 @@ if events == 1:
     if show_corrupt_popup("config/events.json"):
         update_events([])
         events = get_events()
-        print(events)
         if events == 1:
             if show_error_overwriting("config/events.json"):
                 app.exit()
@@ -107,8 +132,10 @@ setTooltipStyle()
 
 tray = tray_helper(app, window)
 
-eventTimer = event_timer(theme, window, settings_data, 5000)
-eventTimer.start()
+event_timer_object = event_timer(theme, window, settings_data, tray, 5000)
+event_timer_object.start()
+reminder_timer_object = reminder_timer(theme, window, settings_data, tray, 5000)
+reminder_timer_object.start()
 
 def refresh_settings():
     global settings_data, theme
@@ -120,7 +147,8 @@ def refresh_settings():
         setTooltipStyle()
 
         window.update_theme(theme['main_backgrounds'])
-        eventTimer.update_theme(theme)
+        event_timer_object.update_theme(theme)
+        reminder_timer_object.update_theme(theme)
 
         for widget in window.findChildren(QWidget):
             if hasattr(widget, "update_theme"):
@@ -142,7 +170,8 @@ def refresh_settings():
                     widget.update_theme(theme['combo-box'], theme['text']['text_disabled'])
                 elif isinstance(widget, DateTimeEdit):
                     widget.update_theme(theme)
-    eventTimer.update_when_to_notify(new_settings_data)
+    event_timer_object.update_when_to_notify(new_settings_data)
+    reminder_timer_object.update_when_to_notify(new_settings_data)
     settings_data = new_settings_data
     
 
@@ -154,16 +183,18 @@ tool_selector_layout = QVBoxLayout()
 tool_selector.setLayout(tool_selector_layout)
 pomodoro_timer_button = Button("Pomodoro Timer", theme['button'], theme['text']['text_disabled'])
 events_button = Button("Events", theme['button'], theme['text']['text_disabled'])
+reminders_button = Button("Reminders", theme['button'], theme['text']['text_disabled'])
 settings_button = Button("Settings", theme['button'], theme['text']['text_disabled'])
 quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
 
 tool_widget = StackedWidget(theme['main_backgrounds'])
 tool_widget.addWidget(timer_widget(theme, tray))
 tool_widget.addWidget(events_widget(theme, tray))
-tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings)) 
+tool_widget.addWidget(reminder_widget(theme, tray))
+tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray)) 
 
 sound_effect = QSoundEffect()
-sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/ding.wav"))
+sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/error.wav"))
 sound_effect.setVolume(0.5)
 
 def showQuitPopup():
@@ -231,11 +262,13 @@ main_layout.addWidget(tool_selector)
 main_layout.addWidget(tool_widget)
 tool_selector_layout.addWidget(pomodoro_timer_button)
 tool_selector_layout.addWidget(events_button)
+tool_selector_layout.addWidget(reminders_button)
 tool_selector_layout.addWidget(settings_button)
 tool_selector_layout.addWidget(quit_button)
 pomodoro_timer_button.clicked.connect(lambda: tool_widget.setCurrentIndex(0))
 events_button.clicked.connect(lambda: tool_widget.setCurrentIndex(1))
-settings_button.clicked.connect(lambda: tool_widget.setCurrentIndex(2))
+reminders_button.clicked.connect(lambda: tool_widget.setCurrentIndex(2))
+settings_button.clicked.connect(lambda: tool_widget.setCurrentIndex(3))
 quit_button.clicked.connect(showQuitPopup)
 
 

@@ -1,4 +1,5 @@
 {
-    "theme": "dark",
-    "minutes": 5
+    "theme": "amoled",
+    "minutes_reminders": 0,
+    "minutes_events": 5
 }

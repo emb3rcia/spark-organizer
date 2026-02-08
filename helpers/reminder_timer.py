@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from helpers.scheduled_helper import get_reminders, update_reminders
 
 class reminder_timer(QObject):
-    def __init__(self, theme_data, window: QMainWindow, settings_data, interval_ms=5000):
+    def __init__(self, theme_data, window: QMainWindow, settings_data, tray, interval_ms=5000):
         super().__init__(None)
         self.window = window
+        self.tray = tray
         self.settings_data = settings_data
         self.theme_data = theme_data
         self.sound_effect = QSoundEffect()
@@ -49,16 +50,17 @@ class reminder_timer(QObject):
 
     def check_reminders(self):
         now = QDateTime.currentDateTime(QTimeZone.systemTimeZone())
-        offset_secs = self.settings_data['minutes'] * 60
+        offset_secs = self.settings_data['minutes_reminders'] * 60
         reminders = get_reminders()
         changed = False
         for r in reminders:
             notification_date = QDateTime.fromString(r['notification_time'], Qt.DateFormat.ISODate)
             notify_date = notification_date.addSecs(-offset_secs)
             if notify_date <= now and r['notified'] == False:
-                self.sendPopup(r['title'], f"Reminder: {r['title']}")
+                self.tray.notify(r['title'], f"Reminder: {r['title']}")
                 r['notified'] = True
                 changed = True
+                self.sendPopup(r['title'], f"Reminder: {r['title']}")
         if changed:
             update_reminders(reminders)
     

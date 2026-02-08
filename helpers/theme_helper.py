@@ -253,9 +253,16 @@ def overwrite_themes():
     os.replace(tmp_file, themes_file)
 
 def list_themes():
-    try:
-        with open(themes_file, "r") as f:
-            themes_json = json.load(f)
-            return list(themes_json.keys())
-    except json.JSONDecodeError:
-        return 1
+    if os.path.isfile(themes_file):
+        try:
+            with open(themes_file, "r") as f:
+                themes_data = json.load(f)
+                return themes_data
+        except json.JSONDecodeError:
+            return 1
+    else:
+        tmp_file = themes_file + ".tmp"
+        with open(tmp_file, "w") as f:
+            json.dump(default_themes, f, indent=4)
+        os.replace(tmp_file, themes_file)
+        return default_themes

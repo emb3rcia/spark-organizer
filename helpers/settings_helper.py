@@ -7,25 +7,13 @@ from helpers.scheduled_helper import EVENTS_FILE, REMINDERS_FILE
 
 default_settings = {
     "theme": "dark",
-    "minutes": 5
+    "minutes_reminders": 0,
+    "minutes_events": 5
 }
 
 config_path = os.path.join(os.path.dirname(__file__), "..", "config")
 os.makedirs(config_path, exist_ok=True)
 settings_file = os.path.join(config_path, "settings.json")
-
-def show_corrupt_popup(file_name):
-    msg = QMessageBox()
-    msg.setWindowTitle("Corrupted themes.json detected")
-    msg.setText(f"File {file_name} is corrupted!\nYou can overwrite it with default values and exit,\nor quit without changes to it, what would you want?")
-    msg.setIcon(QMessageBox.Icon.Critical)
-    write_defaults = msg.addButton("Write defaults and exit", QMessageBox.ButtonRole.AcceptRole)
-    quit_button = msg.addButton("Quit", QMessageBox.ButtonRole.RejectRole)
-    msg.exec()
-    if msg.clickedButton() == write_defaults:
-        return True
-    return False
-
 
 def get_settings():
     if os.path.isfile(settings_file):
@@ -38,12 +26,15 @@ def get_settings():
         settings_data = default_settings
 
     all_themes = list_themes()
-    current_theme = settings_data.get("theme", "dark")
-    if current_theme not in all_themes:
-        if current_theme in default_themes:
-            settings_data["theme"] = current_theme
-        else:
-            settings_data["theme"] = "dark"
+    if all_themes == 1:
+        return 2
+    else:
+        current_theme = settings_data.get("theme", "dark")
+        if current_theme not in all_themes:
+            if current_theme in default_themes:
+                settings_data["theme"] = current_theme
+            else:
+                settings_data["theme"] = "dark"
 
     tmp_file = settings_file + ".tmp"
     with open(tmp_file, "w") as f:

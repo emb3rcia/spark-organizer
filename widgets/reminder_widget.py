@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QComboBox, QWidget, QVBoxLayout, QFormLayout, QHBoxL
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtCore import QDateTime, QTimeZone, Qt, QUrl
 from styled_functions.styled_functions import ComboBox, Widget, Label, Button, LineEdit, DateTimeEdit, TableWidget
-from helpers.scheduled_helper import get_events, add_event, remove_event, Event
+from helpers.scheduled_helper import get_reminders, add_reminder, remove_reminder, Reminder
 import uuid
 
 class reminder_widget(QWidget):
@@ -32,6 +32,7 @@ class reminder_widget(QWidget):
         notification_date_label = Label("Select reminder date and time:", self.theme_data['text'], 1)
         self.notification_date = DateTimeEdit(self.theme_data)
         self.notification_date.setDateTime(QDateTime.currentDateTime(QTimeZone.systemTimeZone()))
+        reminders_control_layout.addRow(notification_date_label, self.notification_date)
         add_reminder_button = Button("Add reminder", self.theme_data['button'], self.theme_data['text']['text_disabled'])
         add_reminder_button.clicked.connect(self.add_reminder_function)
         reminders_control_layout.addRow(add_reminder_button)

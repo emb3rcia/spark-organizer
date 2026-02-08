@@ -97,6 +97,9 @@ class events_widget(QWidget):
             elif self.end_date.dateTime() < QDateTime.currentDateTime(QTimeZone.systemTimeZone()):
                 self.showPopup("Incorrect settings", "End date can't be set to before now!")
                 return
+            elif self.start_date.dateTime() < QDateTime.currentDateTime(QTimeZone.systemTimeZone()):
+                self.showPopup("Incorrect settings", "Start date can't be set to before now!")
+                return
             else:
                 event = Event(
                     id=str(uuid.uuid4()),

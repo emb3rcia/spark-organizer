@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from helpers.scheduled_helper import get_events, update_events
 
 class event_timer(QObject):
-    def __init__(self, theme_data, window: QMainWindow, settings_data, interval_ms=5000):
+    def __init__(self, theme_data, window: QMainWindow, settings_data, tray, interval_ms=5000):
         super().__init__(None)
         self.window = window
+        self.tray = tray
         self.settings_data = settings_data
         self.theme_data = theme_data
         self.sound_effect = QSoundEffect()
@@ -49,7 +50,7 @@ class event_timer(QObject):
 
     def check_events(self):
         now = QDateTime.currentDateTime(QTimeZone.systemTimeZone())
-        offset_secs = self.settings_data['minutes'] * 60
+        offset_secs = self.settings_data['minutes_events'] * 60
         events = get_events()
         changed = False
         for e in events:
@@ -58,15 +59,17 @@ class event_timer(QObject):
             if start_date:
                 notify_date = start_date.addSecs(-offset_secs)
                 if notify_date <= now and e['notified'] == False:
-                    self.sendPopup(e['title'], f"Reminding you about a start of {e['title']}")
+                    self.tray.notify(e['title'], f"Reminding you about a start of {e['title']}")
                     e['notified'] = True
                     changed = True
+                    self.sendPopup(e['title'], f"Reminding you about a start of {e['title']}")
             else:
                 notify_date = end_date.addSecs(-offset_secs)
                 if notify_date <= now and e['notified'] == False:
-                    self.sendPopup(e['title'], f"Reminding you about a deadline of {e['title']}")
+                    self.tray.notify(e['title'], f"Reminding you about a deadline of {e['title']}")
                     e['notified'] = True
                     changed = True
+                    self.sendPopup(e['title'], f"Reminding you about a deadline of {e['title']}")
         if changed:
             update_events(events)
     
