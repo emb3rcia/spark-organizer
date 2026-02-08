@@ -182,7 +182,7 @@ class timer_widget(QWidget):
             self.timer.stop()
             if self.lifecycle == WORK:
                 self.passed_cycles += 1
-                add_one_to_stat("cycles_completed")
+                add_one_to_stat("cycles_completed_count")
                 if self.passed_cycles >= self.cycles:
                     if self.longer_break_time_seconds and self.longer_break_time_seconds > 0:
                         self.remaining_seconds = self.longer_break_time_seconds
@@ -222,6 +222,7 @@ class timer_widget(QWidget):
                 self.phase_label.setText("Work")
                 add_one_to_stat("work_started_count")
                 add_one_to_stat("break_completed_count")
+                add_one_to_stat("cycles_started_count")
                 self.lifecycle = WORK
             elif self.lifecycle == LONGER_BREAK:
                 if self.work_time_seconds and self.work_time_seconds > 0:

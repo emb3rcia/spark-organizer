@@ -2,8 +2,6 @@
 
 import json
 import os
-import sys
-from PyQt6.QtWidgets import QMessageBox, QApplication
 
 default_themes = {
     "dark": {
@@ -252,17 +250,15 @@ def overwrite_themes():
         json.dump(default_themes, f, indent=4)
     os.replace(tmp_file, themes_file)
 
-def list_themes():
-    if os.path.isfile(themes_file):
-        try:
-            with open(themes_file, "r") as f:
-                themes_data = json.load(f)
-                return themes_data
-        except json.JSONDecodeError:
-            return 1
-    else:
-        tmp_file = themes_file + ".tmp"
-        with open(tmp_file, "w") as f:
-            json.dump(default_themes, f, indent=4)
-        os.replace(tmp_file, themes_file)
-        return default_themes
+def add_theme(theme_data, theme_name):
+    tmp_file = themes_file + ".tmp"
+    theme_data_file = {}
+    try :
+        with open(themes_file, "r") as f:
+            theme_data_file = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        theme_data_file = default_themes
+    theme_data_file[theme_name] = theme_data
+    with open(tmp_file, "w") as f:
+        json.dump(theme_data_file, f, indent=4)
+    os.replace(tmp_file, themes_file)

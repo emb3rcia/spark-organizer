@@ -54,13 +54,14 @@ class reminder_timer(QObject):
         reminders = get_reminders()
         changed = False
         for r in reminders:
-            notification_date = QDateTime.fromString(r['notification_time'], Qt.DateFormat.ISODate)
-            notify_date = notification_date.addSecs(-offset_secs)
-            if notify_date <= now and r['notified'] == False:
-                self.tray.notify(r['title'], f"Reminder: {r['title']}")
-                r['notified'] = True
-                changed = True
-                self.sendPopup(r['title'], f"Reminder: {r['title']}")
+            if not r['notified']:
+                notification_date = QDateTime.fromString(r['notification_time'], Qt.DateFormat.ISODate)
+                notify_date = notification_date.addSecs(-offset_secs)
+                if notify_date <= now and r['notified'] == False:
+                    self.tray.notify(r['title'], f"Reminder: {r['title']}")
+                    r['notified'] = True
+                    changed = True
+                    self.sendPopup(r['title'], f"Reminder: {r['title']}")
         if changed:
             update_reminders(reminders)
     

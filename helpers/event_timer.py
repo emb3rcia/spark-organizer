@@ -54,22 +54,23 @@ class event_timer(QObject):
         events = get_events()
         changed = False
         for e in events:
-            start_date = QDateTime.fromString(e['start_time'], Qt.DateFormat.ISODate) if e['type'] == "event" else None
-            end_date = QDateTime.fromString(e['end_time'], Qt.DateFormat.ISODate)
-            if start_date:
-                notify_date = start_date.addSecs(-offset_secs)
-                if notify_date <= now and e['notified'] == False:
-                    self.tray.notify(e['title'], f"Reminding you about a start of {e['title']}")
-                    e['notified'] = True
-                    changed = True
-                    self.sendPopup(e['title'], f"Reminding you about a start of {e['title']}")
-            else:
-                notify_date = end_date.addSecs(-offset_secs)
-                if notify_date <= now and e['notified'] == False:
-                    self.tray.notify(e['title'], f"Reminding you about a deadline of {e['title']}")
-                    e['notified'] = True
-                    changed = True
-                    self.sendPopup(e['title'], f"Reminding you about a deadline of {e['title']}")
+            if not e['notified']:
+                start_date = QDateTime.fromString(e['start_time'], Qt.DateFormat.ISODate) if e['type'] == "event" else None
+                end_date = QDateTime.fromString(e['end_time'], Qt.DateFormat.ISODate)
+                if start_date:
+                    notify_date = start_date.addSecs(-offset_secs)
+                    if notify_date <= now and e['notified'] == False:
+                        self.tray.notify(e['title'], f"Reminding you about a start of {e['title']}")
+                        e['notified'] = True
+                        changed = True
+                        self.sendPopup(e['title'], f"Reminding you about a start of {e['title']}")
+                else:
+                    notify_date = end_date.addSecs(-offset_secs)
+                    if notify_date <= now and e['notified'] == False:
+                        self.tray.notify(e['title'], f"Reminding you about a deadline of {e['title']}")
+                        e['notified'] = True
+                        changed = True
+                        self.sendPopup(e['title'], f"Reminding you about a deadline of {e['title']}")
         if changed:
             update_events(events)
     

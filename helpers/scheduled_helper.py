@@ -1,8 +1,7 @@
 import json
 import os
-import sys
 from dataclasses import dataclass, asdict
-from PyQt6.QtWidgets import QMessageBox, QApplication
+
 
 @dataclass
 class Event:
@@ -41,15 +40,12 @@ def add_event(event: Event):
     with open(EVENTS_FILE, 'w') as f:
         json.dump(events, f, indent=4)
 
-def remove_event(event_id: str, update_events=None):
+def remove_event(event_id: str):
     events = get_events()
     events = [event for event in events if event['id'] != event_id]
 
     with open(EVENTS_FILE, 'w') as f:
         json.dump(events, f, indent=4)
-
-    if update_events:
-        update_events()
 
 def update_events(events):
     os.makedirs('config', exist_ok=True)
@@ -85,15 +81,12 @@ def add_reminder(reminder: Reminder):
     with open(REMINDERS_FILE, 'w') as f:
         json.dump(reminders, f, indent=4)
 
-def remove_reminder(reminder_id: str, update_reminders=None):
+def remove_reminder(reminder_id):
     reminders = get_reminders()
     reminders = [reminder for reminder in reminders if reminder['id'] != reminder_id]
 
     with open(REMINDERS_FILE, 'w') as f:
         json.dump(reminders, f, indent=4)
-
-    if update_reminders:
-        update_reminders()
 
 def update_reminders(reminders):
     os.makedirs('config', exist_ok=True)

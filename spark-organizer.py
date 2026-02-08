@@ -1,125 +1,32 @@
+import sys
+
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget, QMessageBox
 
-from helpers.stats_helper import get_stats, overwrite_stats
+from helpers.corruption_helper import check_for_corruption
+from helpers.event_timer import event_timer
+from helpers.reminder_timer import reminder_timer
+from helpers.settings_helper import get_settings
+from helpers.theme_helper import get_themes
+from helpers.tray_helper import tray_helper
 from styled_functions.styled_functions import Button, Label, LineEdit, MainWindow, TableWidget, Widget, StackedWidget, ComboBox, DateTimeEdit
-import sys
-from helpers.theme_helper import get_themes, overwrite_themes
-from helpers.scheduled_helper import get_events, get_reminders, update_events, update_reminders
-from helpers.settings_helper import get_settings, overwrite_settings
+from widgets.events_widget import events_widget
+from widgets.reminder_widget import reminder_widget
 from widgets.settings_widget import settings_widget
 from widgets.stats_widget import stats_widget
 from widgets.timer_widget import timer_widget
-from widgets.events_widget import events_widget
-from widgets.reminder_widget import reminder_widget
-from helpers.tray_helper import tray_helper
-from PyQt6.QtMultimedia import QSoundEffect
-from PyQt6.QtCore import Qt, QUrl
-from helpers.event_timer import event_timer
-from helpers.reminder_timer import reminder_timer
 
 app = QApplication(sys.argv)
 
-def show_corrupt_popup(file_name):
-    msg = QMessageBox()
-    msg.setWindowTitle("Corrupted file")
-    msg.setText(f"{file_name} is corrupted!\nOverwrite with defaults or quit?\nWARNING: It WILL delete saved themes or current stats, settings, event or reminders. (depending which file is corrupted)")
-    write_defaults = msg.addButton("Write defaults", QMessageBox.ButtonRole.AcceptRole)
-    quit_btn = msg.addButton("Quit", QMessageBox.ButtonRole.RejectRole)
-    msg.exec()
-    return msg.clickedButton() == write_defaults
-
-def show_error_overwriting(file_name):
-    msg = QMessageBox()
-    msg.setWindowTitle("Error overwriting corrupted file")
-    msg.setText(f"{file_name} is still corrupted!\nReport this on GitHub to program's creator")
-    okay = msg.addButton("Okay", QMessageBox.ButtonRole.AcceptRole)
-    msg.exec()
-    return msg.clickedButton() == okay
-
 #check for corruption
-settings_data = get_settings()
+corrupted = check_for_corruption()
+if corrupted:
+    app.exit(0)
+    sys.exit(0)
+
 theme_data = get_themes()
-events = get_events()
-reminders = get_reminders()
-stats = get_stats()
-themes_overwritten = False
-
-if theme_data == 1:
-    if show_corrupt_popup("config/themes.json"):
-        overwrite_themes()
-        themes_overwritten = True
-        theme_data = get_themes()
-        if theme_data == 1:
-            show_error_overwriting("config/themes.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-if settings_data == 1:
-    if show_corrupt_popup("config/settings.json"):
-        overwrite_settings()
-        settings_data = get_settings()
-        if settings_data == 1:
-            show_error_overwriting("config/settings.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-elif settings_data == 2:
-    if show_corrupt_popup("config/themes.json"):
-        overwrite_settings()
-        if not themes_overwritten:
-            overwrite_themes()
-        settings_data = get_settings()
-        if settings_data == 1:
-                if show_corrupt_popup("config/settings.json"):
-                    overwrite_settings()
-                    settings_data = get_settings()
-                    if settings_data == 1:
-                        show_error_overwriting("config/settings.json.json")
-                        app.exit()
-                        sys.exit(1)
-                else:
-                    app.exit()
-        if settings_data == 2:
-            show_error_overwriting("config/themes.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-if events == 1:
-    if show_corrupt_popup("config/events.json"):
-        update_events([])
-        events = get_events()
-        if events == 1:
-            show_error_overwriting("config/events.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-if reminders == 1:
-    if show_corrupt_popup("config/reminders.json"):
-        update_reminders([])
-        reminders = get_reminders()
-        print(reminders)
-        if reminders == 1:
-            show_error_overwriting("config/reminders.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-if stats == 1:
-    if show_corrupt_popup("config/stats.json"):
-        overwrite_stats()
-        stats = get_stats()
-        print(stats)
-        if stats == 1:
-            show_error_overwriting("config/stats.json")
-            app.exit()
-            sys.exit(1)
-    else:
-        app.exit()
-
+settings_data = get_settings()
 
 current_theme_name = settings_data["theme"]
 theme = theme_data[current_theme_name]
@@ -267,7 +174,8 @@ def showQuitPopup():
     sound_effect.play()
     reply = msg.exec()
     if reply == QMessageBox.StandardButton.Yes:
-        QApplication.quit()
+        app.exit()
+        sys.exit(1)
 
 main_layout.addWidget(tool_selector)
 main_layout.addWidget(tool_widget)

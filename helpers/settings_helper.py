@@ -1,6 +1,6 @@
 import json
 import os
-from helpers.theme_helper import list_themes, default_themes
+from helpers.theme_helper import list_themes, default_themes, get_themes, add_theme
 
 default_settings = {
     "theme": "dark",
@@ -29,8 +29,12 @@ def get_settings():
         current_theme = settings_data.get("theme", "dark")
         if current_theme not in all_themes:
             if current_theme in default_themes:
+                data = default_themes.get(current_theme)
+                add_theme(data)
                 settings_data["theme"] = current_theme
             else:
+                data = default_themes.get('dark')
+                add_theme(data)
                 settings_data["theme"] = "dark"
 
     tmp_file = settings_file + ".tmp"
