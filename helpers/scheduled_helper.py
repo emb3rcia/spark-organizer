@@ -4,22 +4,6 @@ import sys
 from dataclasses import dataclass, asdict
 from PyQt6.QtWidgets import QMessageBox, QApplication
 
-if QApplication.instance() is None:
-    app = QApplication([])
-
-def show_corrupt_popup(file_name):
-    msg = QMessageBox()
-    msg.setWindowTitle("Corrupted themes.json detected")
-    msg.setText(f"File {file_name} is corrupted!\nYou can overwrite it with default values and exit,\nor quit without changes to it, what would you want?")
-    msg.setIcon(QMessageBox.Icon.Critical)
-    write_defaults = msg.addButton("Write defaults and exit", QMessageBox.ButtonRole.AcceptRole)
-    quit_button = msg.addButton("Quit", QMessageBox.ButtonRole.RejectRole)
-    msg.exec()
-
-    if msg.clickedButton() == write_defaults:
-        return True
-    return False
-
 @dataclass
 class Event:
     id: str
@@ -29,11 +13,13 @@ class Event:
     start_time: str = None
     notified: bool = False
 
-EVENTS_FILE = 'config/events.json'
+config_path = os.path.join(os.path.dirname(__file__), "..", "config")
+os.makedirs(config_path, exist_ok=True)
+EVENTS_FILE = os.path.join(config_path, "events.json")
+REMINDERS_FILE = os.path.join(config_path, "reminders.json")
 
 def get_events():
-    if not os.path.exists(EVENTS_FILE):
-        os.makedirs('config', exist_ok=True)
+    if not os.path.isfile(EVENTS_FILE):
         with open(EVENTS_FILE, 'w') as f:
             f.write('[]')
         return []
@@ -77,11 +63,8 @@ class Reminder:
     notification_time: str = None
     notified: bool = False
 
-REMINDERS_FILE = "config/reminders.json"
-
 def get_reminders():
-    if not os.path.exists(REMINDERS_FILE):
-        os.makedirs('config', exist_ok=True)
+    if not os.path.isfile(REMINDERS_FILE):
         with open(REMINDERS_FILE, 'w') as f:
             f.write('[]')
         return []

@@ -2,7 +2,7 @@ import json
 import os
 import sys
 from PyQt6.QtWidgets import QMessageBox, QApplication
-from helpers.theme_helper import listThemes, default_themes, initializeThemes
+from helpers.theme_helper import list_themes, default_themes
 from helpers.scheduled_helper import EVENTS_FILE, REMINDERS_FILE
 
 default_settings = {
@@ -28,23 +28,22 @@ def show_corrupt_popup(file_name):
 
 
 def get_settings():
-    if os.path.exists(settings_file):
+    if os.path.isfile(settings_file):
         try:
             with open(settings_file, "r") as f:
                 settings_data = json.load(f)
         except json.JSONDecodeError:
             return 1
     else:
-        settings_data = default_settings.copy()
+        settings_data = default_settings
 
-    all_themes = listThemes()
+    all_themes = list_themes()
     current_theme = settings_data.get("theme", "dark")
     if current_theme not in all_themes:
         if current_theme in default_themes:
             settings_data["theme"] = current_theme
         else:
             settings_data["theme"] = "dark"
-            initializeThemes()
 
     tmp_file = settings_file + ".tmp"
     with open(tmp_file, "w") as f:

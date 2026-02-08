@@ -232,7 +232,7 @@ os.makedirs(config_path, exist_ok=True)
 themes_file = os.path.join(config_path, "themes.json")
 
 def get_themes():
-    if os.path.exists(themes_file):
+    if os.path.isfile(themes_file):
         try:
             with open(themes_file, "r") as f:
                 themes_data = json.load(f)
@@ -244,7 +244,7 @@ def get_themes():
         with open(tmp_file, "w") as f:
             json.dump(default_themes, f, indent=4)
         os.replace(tmp_file, themes_file)
-        return default_themes.copy()
+        return default_themes
 
 def overwrite_themes():
     tmp_file = themes_file + ".tmp"
@@ -252,7 +252,7 @@ def overwrite_themes():
         json.dump(default_themes, f, indent=4)
     os.replace(tmp_file, themes_file)
 
-def listThemes():
+def list_themes():
     try:
         with open(themes_file, "r") as f:
             themes_json = json.load(f)

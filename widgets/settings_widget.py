@@ -3,7 +3,7 @@
 from PyQt6.QtWidgets import QComboBox, QWidget, QVBoxLayout, QFormLayout
 from PyQt6.QtGui import QIntValidator
 from styled_functions.styled_functions import ComboBox, Widget, Label, Button, LineEdit
-from helpers.theme_helper import listThemes
+from helpers.theme_helper import list_themes
 import os
 import json
 
@@ -30,7 +30,7 @@ class settings_widget(QWidget):
         themes_label = Label("Theme:", self.theme_data['text'], 1)
         interact_layout.addRow(themes_label, self.themes_box)
 
-        themes = listThemes()
+        themes = list_themes()
         self.themes_box.addItems(themes)
         index = themes.index(settings_data['theme'])
         self.themes_box.setCurrentIndex(index)

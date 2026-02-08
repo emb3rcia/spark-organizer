@@ -41,6 +41,7 @@ if theme_data == 1:
     if show_corrupt_popup("config/themes.json"):
         overwrite_themes()
         theme_data = get_themes()
+        print(theme_data)
         if theme_data == 1:
             if show_error_overwriting("config/themes.json"):
                 app.exit()
@@ -52,6 +53,7 @@ if settings_data == 1:
     if show_corrupt_popup("config/settings.json"):
         overwrite_settings()
         settings_data = get_settings()
+        print(settings_data)
         if settings_data == 1:
             if show_error_overwriting("config/settings.json"):
                 app.exit()
@@ -63,6 +65,7 @@ if events == 1:
     if show_corrupt_popup("config/events.json"):
         update_events([])
         events = get_events()
+        print(events)
         if events == 1:
             if show_error_overwriting("config/events.json"):
                 app.exit()
@@ -74,6 +77,7 @@ if reminders == 1:
     if show_corrupt_popup("config/reminders.json"):
         update_reminders([])
         reminders = get_reminders()
+        print(reminders)
         if reminders == 1:
             if show_error_overwriting("config/reminders.json"):
                 app.exit()
