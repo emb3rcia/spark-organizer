@@ -85,7 +85,6 @@ class reminder_widget(QWidget):
 
     def setPopupStyleRemindersError(self, theme_data):
         self.theme_data = theme_data
-        self.msg.setIcon(QMessageBox.Icon.Information)
 
         palette = self.msg.palette()
         palette.setColor(self.msg.backgroundRole(), QColor(self.theme_data['main_backgrounds']['popup_background']))
@@ -93,9 +92,6 @@ class reminder_widget(QWidget):
         self.msg.setPalette(palette)
 
         self.msg.setStyleSheet(f"""
-                    QMessageBox {{
-                        border: 1px solid {self.theme_data['accent']['info']};
-                    }}
                     QMessageBox QPushButton {{
                         background-color: {self.theme_data['button']['button_background']};
                         color: {self.theme_data['button']['button_text']};
@@ -120,6 +116,13 @@ class reminder_widget(QWidget):
     def showPopup(self, title, text):
         self.msg.setWindowTitle(title)
         self.msg.setText(text)
+        self.msg.setIcon(QMessageBox.Icon.Critical)
+        self.msg.setStyleSheet(f"""
+            QMessageBox {{
+                 border: 1px solid {self.theme_data['accent']['error']};
+            }}
+            """
+            )
         self.sound_effect.play()
         self.msg.exec()
 

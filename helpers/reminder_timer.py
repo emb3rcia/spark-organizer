@@ -24,7 +24,7 @@ class reminder_timer(QObject):
 
         #initiate popup instance and set its style
         self.msg = QMessageBox(self.window)
-        self.setPopupStyleEvent(self.theme_data)
+        self.setPopupStyleReminder(self.theme_data)
 
         #define sound effect
         self.sound_effect = QSoundEffect()

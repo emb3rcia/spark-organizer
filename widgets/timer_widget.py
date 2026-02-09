@@ -54,7 +54,6 @@ class timer_widget(QWidget):
         #define timer
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateTimer)
-        self.updateDisplay()
 
         #define layouts and validator
         main_layout = QVBoxLayout()
@@ -108,6 +107,9 @@ class timer_widget(QWidget):
         interact_layout.addRow(self.timer_label, self.timer_button)
         interact_layout.addRow(phase_descriptor_label, self.phase_label)
         interact_layout.addRow(reset_button)
+
+        #update display instantly
+        self.updateDisplay()
     
     def disableInputs(self, boolean: bool):
         self.work_time_lineedit.setDisabled(boolean)

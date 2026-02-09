@@ -195,9 +195,9 @@ def refresh_settings():
 #define widget instances
 stats_widget_instance = stats_widget(theme)
 timer_widget_instance = timer_widget(theme, tray, stats_widget_instance, window)
-events_widget_instance = events_widget(theme, tray)
-reminder_widget_instance = reminder_widget(theme, tray)
-settings_widget_instance = settings_widget(theme, settings_data, refresh_settings, tray)
+events_widget_instance = events_widget(theme, tray, window)
+reminder_widget_instance = reminder_widget(theme, tray, window)
+settings_widget_instance = settings_widget(theme, settings_data, refresh_settings, tray, window)
 
 #define tool selector
 tool_selector = Widget(theme['main_backgrounds'])
