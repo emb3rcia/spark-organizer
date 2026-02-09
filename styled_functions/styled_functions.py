@@ -1,6 +1,6 @@
 #reused from my spark-builder project
 
-from PyQt6.QtWidgets import QPushButton, QLabel, QToolTip, QWidget, QStackedWidget, QLineEdit, QTableWidget, QHeaderView, QScrollBar, QMainWindow, QComboBox, QDateTimeEdit
+from PyQt6.QtWidgets import QPushButton, QLabel, QWidget, QStackedWidget, QLineEdit, QTableWidget, QMainWindow, QComboBox, QDateTimeEdit
 
 class Button(QPushButton):
     def __init__(self, text, theme_colors, disabled_color):
