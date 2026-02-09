@@ -26,32 +26,43 @@ spark-organizer includes 3 default themes (that are used in case of corruption):
 
 Done! Your new theme is ready to use!
 
-### Dark theme
-
+<a id="dark-theme"></a>
 <details>
-<summary>Screenshots</summary>
+<summary><strong>Dark theme</strong></summary>
 
-TODO: add screenshots through GitHub
+<img width="787" height="272" alt="Screenshot_20260209_111100" src="https://github.com/user-attachments/assets/7ee8f22c-2bd3-43df-a93d-d792c3271790" />
+<img width="787" height="272" alt="Screenshot_20260209_111117" src="https://github.com/user-attachments/assets/b8f5e89b-a653-4518-9699-3290422aed74" />
+<img width="787" height="272" alt="Screenshot_20260209_111132" src="https://github.com/user-attachments/assets/09f13db0-c725-4c77-a0e0-e31a21ecfc7e" />
+<img width="787" height="272" alt="Screenshot_20260209_111142" src="https://github.com/user-attachments/assets/a1256311-0f43-41fb-85bc-ef86e22cfb51" />
+<img width="787" height="272" alt="Screenshot_20260209_111151" src="https://github.com/user-attachments/assets/ef3dfeaa-a7de-4037-99f5-13a901fe9538" />
 
 </details>
 
-### AMOLED theme
-
+<a id="amoled-theme"></a>
 <details>
-<summary>Screenshots</summary>
-
-TODO: add screenshots through GitHub
+<summary><strong>AMOLED theme</strong></summary>
+  
+<img width="787" height="272" alt="Screenshot_20260209_111213" src="https://github.com/user-attachments/assets/9968e9cd-c7e5-4153-88ee-adb187b8229c" />
+<img width="787" height="272" alt="Screenshot_20260209_111217" src="https://github.com/user-attachments/assets/5ff2088d-3e75-4708-8d34-19bf5b00eb67" />
+<img width="787" height="272" alt="Screenshot_20260209_111222" src="https://github.com/user-attachments/assets/cac4ea88-7582-4cf7-9ffa-ee9a07ef4d08" />
+<img width="787" height="272" alt="Screenshot_20260209_111227" src="https://github.com/user-attachments/assets/bfa88eaa-8228-46e8-acf6-7d2e977ff793" />
+<img width="787" height="272" alt="Screenshot_20260209_111234" src="https://github.com/user-attachments/assets/fbf3a141-290d-4cfb-9388-2edeac20335c" />
 
 </details>
 
-### Light theme
-
+<a id="light-theme"></a>
 <details>
-<summary>Screenshots</summary>
-
-TODO: add screenshots through GitHub
+<summary><strong>Light theme</strong></summary>
+  
+<img width="787" height="272" alt="Screenshot_20260209_111247" src="https://github.com/user-attachments/assets/ac1aa750-630b-40bf-871a-718e57b4819a" />
+<img width="787" height="272" alt="Screenshot_20260209_111254" src="https://github.com/user-attachments/assets/55564d91-e0a9-4c57-8131-84c57f37a2dd" />
+<img width="787" height="272" alt="Screenshot_20260209_111258" src="https://github.com/user-attachments/assets/dfeffddc-12ab-478c-9f05-e6b19a462138" />
+<img width="787" height="272" alt="Screenshot_20260209_111301" src="https://github.com/user-attachments/assets/94ff4057-8610-48b9-aa89-1c1e6ba70196" />
+<img width="787" height="272" alt="Screenshot_20260209_111305" src="https://github.com/user-attachments/assets/792aa744-89f2-4db0-9909-04e146c0c045" />
 
 </details>
+
+
 
 ## Custom sounds
 You can also replace default sounds with custom ones! Just do this:
@@ -68,7 +79,7 @@ spark-organizer's feature number 1 is [Pomodoro](https://en.wikipedia.org/wiki/P
 - Set how many minutes the work time should be `(default: 25)`
 - Set how many minutes the break time should be `(default: 5)`
 - Set how many minutes the longer break time should be `(default: 15)`
-- Set how many cycles should be between the long breaks`(default: 4)`
+- Set how many cycles should be between the long breaks `(default: 4)`
 - Click `Start timer`
 - To pause timer, click `Pause timer`
 - To resume timer, click `Resume timer`
@@ -102,13 +113,36 @@ spark-organizer's feature number 3 are normal reminders, usage? Here:
 spark-organizer checks for corruption of files in `config` directory. If any of them is corrupted, it will display a pop-up asking you if you want to overwrite the corrupted file with default values, or allow you to debug it manually. If overwrite won't work the first time, please report this on `GitHub Issues`
 
 ## Settings
-spark-organizer's `Settings` tab allows you to change theme and amount of how many minutes before event/deadline/reminder you should be notified! Simply change your settings and click `Save settings`
+spark-organizer's `Settings` tab allows you to change theme and amount of how many minutes before an event, deadline, or reminder you should be notified! Simply change your settings and click `Save settings`
 
 ## Stats
 spark-organizer tracks your stats such as work times started or cycles complete! Simply open the `Stats` tab!
 
 ## Background running in tray
 When clicking X on spark-organizer's window, it doesn't fully close it, instead, it runs in background and is accessible using your system's tray. To exit the app fully, click `Quit app` on main screen and follow the pop-up message.
+
+# Screenshots
+<a id="pop-ups"></a>
+<details>
+<summary><strong>Pop-Ups</strong></summary>
+  
+<img width="299" height="133" alt="Screenshot_20260209_112929" src="https://github.com/user-attachments/assets/0d103165-92d1-4c31-ae7d-2d41342b341b" />
+<img width="443" height="126" alt="Screenshot_20260209_112814" src="https://github.com/user-attachments/assets/8653684a-7e98-43ed-96e4-876e3da83bae" />
+<img width="339" height="123" alt="Screenshot_20260209_112510" src="https://github.com/user-attachments/assets/ca2ef6ca-4a1c-4412-8fd6-758ee7fa8c86" />
+<img width="261" height="123" alt="Screenshot_20260209_113230" src="https://github.com/user-attachments/assets/b858df59-ac86-4d0b-a732-63878a7e58e5" />
+
+</details>
+
+<a id="notifications"></a>
+<details>
+<summary><strong>Notifications (the appearance depends on the system and desktop enviorment used)</strong></summary>
+  
+<img width="359" height="106" alt="Screenshot_20260209_113225" src="https://github.com/user-attachments/assets/7fa3c192-092c-43b0-bea9-552ade77cccd" />
+<img width="359" height="106" alt="Screenshot_20260209_113113" src="https://github.com/user-attachments/assets/b1979fcc-c83c-4e56-a21b-1b70ab1e19ca" />
+<img width="359" height="106" alt="Screenshot_20260209_112946" src="https://github.com/user-attachments/assets/65d55971-a929-4e63-aa9d-437ba35a2eb5" />
+<img width="354" height="105" alt="Screenshot_20260209_111318" src="https://github.com/user-attachments/assets/778e01b7-6da6-4d5d-a8cf-7f38868122ad" />
+
+</details>
 
 # Installation
 There are 2 main ways to install spark-organizer:
