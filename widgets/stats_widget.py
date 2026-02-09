@@ -1,17 +1,24 @@
+#imports pyqt
+from PyQt6.QtWidgets import QWidget, QFormLayout
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout
-
+#imports helpers
 from helpers.stats_helper import get_stats
-from styled_functions.styled_functions import ComboBox, Widget, Label, LineEdit, Button
+
+#imports styled_functions
+from styled_functions.styled_functions import Label
+
 
 class stats_widget(QWidget):
     def __init__(self, theme_data):
         super().__init__()
+        #define pyqt6 required value
         self.theme_data = theme_data
 
+        #define main layout
         main_layout = QFormLayout()
         self.setLayout(main_layout)
 
+        #define labels
         work_sessions_started_label = Label("Work sessions started:", self.theme_data['text'], 1)
         work_sessions_complete_label = Label("Completed work sessions:", self.theme_data['text'], 1)
         break_sessions_started_label = Label("Break sessions started:", self.theme_data['text'], 1)
@@ -21,6 +28,7 @@ class stats_widget(QWidget):
         cycles_started_label = Label("Cycles started:", self.theme_data['text'], 1)
         cycles_complete_label = Label("Cycles completed:", self.theme_data['text'], 1)
 
+        #define stat displays
         self.work_sessions_started_stat = Label("Not set", self.theme_data['text'], 1)
         self.work_sessions_complete_stat = Label("Not set", self.theme_data['text'], 1)
         self.break_sessions_started_stat = Label("Not set", self.theme_data['text'], 1)
@@ -29,8 +37,11 @@ class stats_widget(QWidget):
         self.longer_break_sessions_complete_stat = Label("Not set", self.theme_data['text'], 1)
         self.cycles_started_stat = Label("Not set", self.theme_data['text'], 1)
         self.cycles_complete_stat = Label("Not set", self.theme_data['text'], 1)
+
+        #update stats
         self.update_stats()
 
+        #add rows
         main_layout.addRow(work_sessions_started_label, self.work_sessions_started_stat)
         main_layout.addRow(work_sessions_complete_label, self.work_sessions_complete_stat)
         main_layout.addRow(break_sessions_started_label, self.break_sessions_started_stat)

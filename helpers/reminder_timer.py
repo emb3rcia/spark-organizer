@@ -1,19 +1,37 @@
+#imports built-in
+import os
+
+#imports pyqt
 from PyQt6.QtCore import QObject, QTimer, QDateTime, QTimeZone, QUrl, Qt
+from PyQt6.QtGui import QColor
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
+
+#imports helpers
 from helpers.scheduled_helper import get_reminders, update_reminders
+
+#define sound_effect_file path
+sound_effect_file = os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ding.wav")
 
 class reminder_timer(QObject):
     def __init__(self, theme_data, window: QMainWindow, settings_data, tray, interval_ms=5000):
         super().__init__(None)
+        #self definitions
         self.window = window
-        self.msg = QMessageBox(self.window)
         self.tray = tray
         self.settings_data = settings_data
         self.theme_data = theme_data
+
+        #initiate popup instance and set its style
+        self.msg = QMessageBox(self.window)
+        self.setPopupStyleEvent(self.theme_data)
+
+        #define sound effect
         self.sound_effect = QSoundEffect()
-        self.sound_effect.setSource(QUrl.fromLocalFile("assets/sounds/ding.wav"))
+        self.sound_effect.setSource(QUrl.fromLocalFile(sound_effect_file))
         self.sound_effect.setVolume(0.5)
+
+        #define timer
         self.timer = QTimer(self)
         self.timer.setInterval(interval_ms)
         self.timer.timeout.connect(self.check_reminders)
@@ -31,14 +49,32 @@ class reminder_timer(QObject):
         self.theme_data = theme_data
         self.msg.setIcon(QMessageBox.Icon.Information)
 
+        palette = self.msg.palette()
+        palette.setColor(self.msg.backgroundRole(), QColor(self.theme_data['main_backgrounds']['popup_background']))
+        palette.setColor(self.msg.foregroundRole(), QColor(self.theme_data['text']['text_primary']))
+        self.msg.setPalette(palette)
+
         self.msg.setStyleSheet(f"""
-            QMessageBox {{
-                background-color: {self.theme_data['main_backgrounds']['popup_background']};
-                color: {self.theme_data['text']['text_primary']}
-                border: 1px solid {self.theme_data['accent']['info']}
-            }}
-        """
-        )
+                    QMessageBox {{
+                        border: 1px solid {self.theme_data['accent']['info']};
+                    }}
+                    QMessageBox QPushButton {{
+                        background-color: {self.theme_data['button']['button_background']};
+                        color: {self.theme_data['button']['button_text']};
+                        border: 1px solid {self.theme_data['button']['button_border']};
+                        border-radius: 6px;
+                    }}
+                    QMessageBox QPushButton:hover {{
+                        background-color: {self.theme_data['button']['button_hover']};
+                    }}
+                    QMessageBox QPushButton:pressed {{
+                        background-color: {self.theme_data['button']['button_pressed']};
+                    }}
+                    QMessageBox QPushButton:disabled {{
+                        background-color: {self.theme_data['button']['button_disabled']};
+                        color: {self.theme_data['text']['text_disabled']};
+                    }}
+                """)
 
         self.msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.msg.setWindowModality(Qt.WindowModality.ApplicationModal)

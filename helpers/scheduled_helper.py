@@ -1,8 +1,9 @@
+#imports built-in
 import json
 import os
 from dataclasses import dataclass, asdict
 
-
+#dataclasses
 @dataclass
 class Event:
     id: str
@@ -12,11 +13,20 @@ class Event:
     start_time: str = None
     notified: bool = False
 
+@dataclass
+class Reminder:
+    id: str
+    title: str
+    notification_time: str = None
+    notified: bool = False
+
+#define path to file
 config_path = os.path.join(os.path.dirname(__file__), "..", "config")
 os.makedirs(config_path, exist_ok=True)
 EVENTS_FILE = os.path.join(config_path, "events.json")
 REMINDERS_FILE = os.path.join(config_path, "reminders.json")
 
+#define event functions
 def get_events():
     if not os.path.isfile(EVENTS_FILE):
         with open(EVENTS_FILE, 'w') as f:
@@ -52,13 +62,8 @@ def update_events(events):
     with open(EVENTS_FILE, 'w') as f:
         json.dump(events, f, indent=4)
 
-@dataclass
-class Reminder:
-    id: str
-    title: str
-    notification_time: str = None
-    notified: bool = False
 
+#define reminders functions
 def get_reminders():
     if not os.path.isfile(REMINDERS_FILE):
         with open(REMINDERS_FILE, 'w') as f:

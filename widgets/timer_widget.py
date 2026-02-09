@@ -1,12 +1,17 @@
+#imports built in
+import os
+
+#imports pyqt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QMessageBox
 from PyQt6.QtGui import QIntValidator, QColor
-
-from helpers.stats_helper import add_one_to_stat
-from styled_functions.styled_functions import Widget, Label, LineEdit, Button
 from PyQt6.QtCore import QTimer, Qt, QUrl
 from PyQt6.QtMultimedia import QSoundEffect
 
-import os
+#imports helpers
+from helpers.stats_helper import add_one_to_stat
+
+#imports styled_functions
+from styled_functions.styled_functions import Widget, Label, LineEdit, Button
 
 sound_effect_file = os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ding.wav")
 
@@ -21,32 +26,37 @@ LONGER_BREAK = 3
 class timer_widget(QWidget):
     def __init__(self, theme_data, tray, stats_widget, window):
         super().__init__()
-        self.tray = tray
+        #define internal values
         self.paused = NOT_STARTED
         self.lifecycle = 0 #0 = not started
         self.work_time_seconds = None
         self.break_time_seconds = None
         self.longer_break_time_seconds = None
-        self.stats_widget = stats_widget
         self.cycles = None
         self.passed_cycles = 0
+        self.remaining_seconds = 0
+
+        #define pyqt required values
+        self.tray = tray
+        self.stats_widget = stats_widget
         self.window = window
-        self.msg = QMessageBox(self.window)
         self.theme_data = theme_data
+
+        #define and style pop-up
+        self.msg = QMessageBox(self.window)
         self.setStylePopUpPhase(self.theme_data)
+
+        #define sound effect
         self.sound_effect = QSoundEffect()
         self.sound_effect.setSource(QUrl.fromLocalFile(sound_effect_file))
         self.sound_effect.setVolume(0.5)
 
-        self.timer_label = Label("00:00:00", self.theme_data['text'], 1)
-        self.timer_button = Button("Start timer", self.theme_data['button'], self.theme_data['text']['text_disabled'])
-        self.timer_button.clicked.connect(self.startOrPauseTimer)
-
+        #define timer
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateTimer)
-        self.remaining_seconds = 0
         self.updateDisplay()
 
+        #define layouts and validator
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
         interact_widget = Widget(self.theme_data['main_backgrounds'])
@@ -55,32 +65,45 @@ class timer_widget(QWidget):
         main_layout.addWidget(interact_widget)
         validator = QIntValidator(1, 9999)
 
+        #define timer row
+        self.timer_label = Label("00:00:00", self.theme_data['text'], 1)
+        self.timer_button = Button("Start timer", self.theme_data['button'], self.theme_data['text']['text_disabled'])
+        self.timer_button.clicked.connect(self.startOrPauseTimer)
+
+        #define work time row
         work_time_label = Label("Work time:", self.theme_data['text'], 1)
         self.work_time_lineedit = LineEdit(self.theme_data['input'], self.theme_data['highlight'], self.theme_data['text']['text_disabled'])
         self.work_time_lineedit.setPlaceholderText("How many minutes you want to work")
         self.work_time_lineedit.setValidator(validator)
         interact_layout.addRow(work_time_label, self.work_time_lineedit)
 
+        #define break time row
         break_time_label = Label("Break time:", self.theme_data['text'], 1)
         self.break_time_lineedit = LineEdit(self.theme_data['input'], self.theme_data['highlight'], self.theme_data['text']['text_disabled'])
         self.break_time_lineedit.setPlaceholderText("How many minutes should break be")
         self.break_time_lineedit.setValidator(validator)
         interact_layout.addRow(break_time_label, self.break_time_lineedit)
 
+        #define longer break time row
         longer_break_time_label = Label("Longer break time:", self.theme_data['text'], 1)
         self.longer_break_time_lineedit = LineEdit(self.theme_data['input'], self.theme_data['highlight'], self.theme_data['text']['text_disabled'])
         self.longer_break_time_lineedit.setPlaceholderText("How many minutes should longer break be")
         self.longer_break_time_lineedit.setValidator(validator)
         interact_layout.addRow(longer_break_time_label, self.longer_break_time_lineedit)
 
+        #define cycles amount row
         cycles_label = Label("How many cycles before longer break:", self.theme_data['text'], 1)
         self.cycles_lineedit = LineEdit(self.theme_data['input'], self.theme_data['highlight'], self.theme_data['text']['text_disabled'])
         self.cycles_lineedit.setPlaceholderText("How many cycles should be between longer breaks")
         self.cycles_lineedit.setValidator(validator)
+
+        #define current phase row
         phase_descriptor_label = Label("Current timer:", self.theme_data['text'], 1)
         self.phase_label = Label("Not started", self.theme_data['text'], 1)
         reset_button = Button("Reset timer", self.theme_data['button'], self.theme_data['text']['text_disabled'])
         reset_button.clicked.connect(self.resetTimers)
+
+        #add rows
         interact_layout.addRow(cycles_label, self.cycles_lineedit)
         interact_layout.addRow(self.timer_label, self.timer_button)
         interact_layout.addRow(phase_descriptor_label, self.phase_label)

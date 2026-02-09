@@ -1,25 +1,38 @@
+#imports built-in
 import os
 import sys
 
+#imports pyqt6
 from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QIcon
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget, QMessageBox
 
+#imports helpers
 from helpers.corruption_helper import check_for_corruption
 from helpers.event_timer import event_timer
 from helpers.reminder_timer import reminder_timer
 from helpers.settings_helper import get_settings
 from helpers.theme_helper import get_themes
 from helpers.tray_helper import tray_helper
+
+#imports styled functions
 from styled_functions.styled_functions import Button, Label, LineEdit, MainWindow, TableWidget, Widget, StackedWidget, ComboBox, DateTimeEdit
+
+#imports widget
 from widgets.events_widget import events_widget
 from widgets.reminder_widget import reminder_widget
 from widgets.settings_widget import settings_widget
 from widgets.stats_widget import stats_widget
 from widgets.timer_widget import timer_widget
 
+#define file paths
+sound_file_path = os.path.join(os.path.dirname(__file__), "assets", "sounds", "error.wav")
+icon_file_path = os.path.join(os.path.dirname(__file__), "assets", "svg", "icon.svg")
+
+#define app
 app = QApplication(sys.argv)
+app.setWindowIcon(QIcon(icon_file_path))
 
 #check for corruption
 corrupted = check_for_corruption()
@@ -27,16 +40,41 @@ if corrupted:
     app.exit(0)
     sys.exit(0)
 
+#get settings and themes values
 theme_data = get_themes()
 settings_data = get_settings()
 
 current_theme_name = settings_data["theme"]
 theme = theme_data[current_theme_name]
 
+#define main window
 window = MainWindow(theme['main_backgrounds'])
 central = Widget(theme['main_backgrounds'])
 window.setCentralWidget(central)
 
+main_layout = QHBoxLayout()
+central.setLayout(main_layout)
+
+#define tray_helper
+tray = tray_helper(app, window)
+
+#define pop-up
+msg = QMessageBox(window)
+
+#define sound effect
+sound_effect = QSoundEffect()
+sound_effect.setSource(QUrl.fromLocalFile(sound_file_path))
+sound_effect.setVolume(0.5)
+
+#define timers
+TIMER_INTERVAL_MS = 5000 #5000 ms between timer checks, so 5 secs
+
+event_timer_object = event_timer(theme, window, settings_data, tray, TIMER_INTERVAL_MS)
+event_timer_object.start()
+reminder_timer_object = reminder_timer(theme, window, settings_data, tray, TIMER_INTERVAL_MS)
+reminder_timer_object.start()
+
+#define functions
 def setTooltipStyle():
     app.instance().setStyleSheet(f"""
         QToolTip {{
@@ -46,93 +84,8 @@ def setTooltipStyle():
         }}
     """)
 
+
 setTooltipStyle()
-
-tray = tray_helper(app, window)
-
-sound_file_path = os.path.join(os.path.dirname(__file__), "assets", "sounds", "error.wav")
-icon_file_path = os.path.join(os.path.dirname(__file__), "assets", "svg", "icon.svg")
-
-icon = QIcon(icon_file_path)
-window.setWindowIcon(icon)
-
-msg = QMessageBox(window)
-
-event_timer_object = event_timer(theme, window, settings_data, tray, 5000)
-event_timer_object.start()
-reminder_timer_object = reminder_timer(theme, window, settings_data, tray, 5000)
-reminder_timer_object.start()
-
-stats_widget_instance = stats_widget(theme)
-timer_widget_instance = timer_widget(theme, tray, stats_widget_instance, window)
-
-def refresh_settings():
-    global settings_data, theme
-    new_settings_data = get_settings()
-    
-    if settings_data['theme'] != new_settings_data['theme']:
-        theme = theme_data[new_settings_data['theme']]
-
-        setTooltipStyle()
-
-        window.update_theme(theme['main_backgrounds'])
-        event_timer_object.update_theme(theme)
-        reminder_timer_object.update_theme(theme)
-        set_quit_popup_style()
-        event_timer_object.setPopupStyleEvent(theme)
-        reminder_timer_object.setPopupStyleReminder(theme)
-        timer_widget_instance.setStylePopUpPhase(theme)
-
-        for widget in window.findChildren(QWidget):
-            if hasattr(widget, "update_theme"):
-                if isinstance(widget, Button):
-                    widget.update_theme(theme['button'], theme['text']['text_disabled'])
-                elif isinstance(widget, Label):
-                    widget.update_theme(theme['text'])
-                elif isinstance(widget, LineEdit):
-                    widget.update_theme(theme['input'], theme['highlight'], theme['text']['text_disabled'])
-                elif isinstance(widget, MainWindow):
-                    widget.update_theme(theme['main_backgrounds'])
-                elif isinstance(widget, TableWidget):
-                    widget.update_theme(theme['table'], theme['extra'], theme['text']['text_disabled'])
-                elif isinstance(widget, Widget):
-                    widget.update_theme(theme['main_backgrounds'])
-                elif isinstance(widget, StackedWidget):
-                    widget.update_theme(theme['main_backgrounds'])
-                elif isinstance(widget, ComboBox):
-                    widget.update_theme(theme['combo-box'], theme['text']['text_disabled'])
-                elif isinstance(widget, DateTimeEdit):
-                    widget.update_theme(theme)
-    event_timer_object.update_when_to_notify(new_settings_data)
-    reminder_timer_object.update_when_to_notify(new_settings_data)
-    settings_data = new_settings_data
-    
-
-main_layout = QHBoxLayout()
-central.setLayout(main_layout)
-
-tool_selector = Widget(theme['main_backgrounds'])
-tool_selector_layout = QVBoxLayout()
-tool_selector.setLayout(tool_selector_layout)
-pomodoro_timer_button = Button("Pomodoro Timer", theme['button'], theme['text']['text_disabled'])
-events_button = Button("Events", theme['button'], theme['text']['text_disabled'])
-reminders_button = Button("Reminders", theme['button'], theme['text']['text_disabled'])
-settings_button = Button("Settings", theme['button'], theme['text']['text_disabled'])
-stats_button = Button("Stats", theme['button'], theme['text']['text_disabled'])
-quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
-
-
-
-tool_widget = StackedWidget(theme['main_backgrounds'])
-tool_widget.addWidget(timer_widget_instance)
-tool_widget.addWidget(events_widget(theme, tray))
-tool_widget.addWidget(reminder_widget(theme, tray))
-tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray))
-tool_widget.addWidget(stats_widget_instance)
-
-sound_effect = QSoundEffect()
-sound_effect.setSource(QUrl.fromLocalFile(sound_file_path))
-sound_effect.setVolume(0.5)
 
 def set_quit_popup_style():
     msg.setWindowTitle("Quit confirmation")
@@ -198,26 +151,100 @@ def showquitpopup():
         app.exit()
         sys.exit(1)
 
+def refresh_settings():
+    global settings_data, theme
+    new_settings_data = get_settings()
+
+    if settings_data['theme'] != new_settings_data['theme']:
+        theme = theme_data[new_settings_data['theme']]
+
+        setTooltipStyle()
+
+        window.update_theme(theme['main_backgrounds'])
+        event_timer_object.update_theme(theme)
+        reminder_timer_object.update_theme(theme)
+        set_quit_popup_style()
+        event_timer_object.setPopupStyleEvent(theme)
+        reminder_timer_object.setPopupStyleReminder(theme)
+        timer_widget_instance.setStylePopUpPhase(theme)
+
+        for widget in window.findChildren(QWidget):
+            if hasattr(widget, "update_theme"):
+                if isinstance(widget, Button):
+                    widget.update_theme(theme['button'], theme['text']['text_disabled'])
+                elif isinstance(widget, Label):
+                    widget.update_theme(theme['text'])
+                elif isinstance(widget, LineEdit):
+                    widget.update_theme(theme['input'], theme['highlight'], theme['text']['text_disabled'])
+                elif isinstance(widget, MainWindow):
+                    widget.update_theme(theme['main_backgrounds'])
+                elif isinstance(widget, TableWidget):
+                    widget.update_theme(theme['table'], theme['extra'], theme['text']['text_disabled'])
+                elif isinstance(widget, Widget):
+                    widget.update_theme(theme['main_backgrounds'])
+                elif isinstance(widget, StackedWidget):
+                    widget.update_theme(theme['main_backgrounds'])
+                elif isinstance(widget, ComboBox):
+                    widget.update_theme(theme['combo-box'], theme['text']['text_disabled'])
+                elif isinstance(widget, DateTimeEdit):
+                    widget.update_theme(theme)
+    event_timer_object.update_when_to_notify(new_settings_data)
+    reminder_timer_object.update_when_to_notify(new_settings_data)
+    settings_data = new_settings_data
+
+#define widget instances
+stats_widget_instance = stats_widget(theme)
+timer_widget_instance = timer_widget(theme, tray, stats_widget_instance, window)
+events_widget_instance = events_widget(theme, tray)
+reminder_widget_instance = reminder_widget(theme, tray)
+settings_widget_instance = settings_widget(theme, settings_data, refresh_settings, tray)
+
+#define tool selector
+tool_selector = Widget(theme['main_backgrounds'])
+tool_selector_layout = QVBoxLayout()
+tool_selector.setLayout(tool_selector_layout)
+
+#define tool selector buttons
+pomodoro_timer_button = Button("Pomodoro Timer", theme['button'], theme['text']['text_disabled'])
+events_button = Button("Events", theme['button'], theme['text']['text_disabled'])
+reminders_button = Button("Reminders", theme['button'], theme['text']['text_disabled'])
+settings_button = Button("Settings", theme['button'], theme['text']['text_disabled'])
+stats_button = Button("Stats", theme['button'], theme['text']['text_disabled'])
+quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
+
+
+#define tool widget
+tool_widget = StackedWidget(theme['main_backgrounds'])
+tool_widget.addWidget(timer_widget_instance)
+tool_widget.addWidget(events_widget_instance)
+tool_widget.addWidget(reminder_widget_instance)
+tool_widget.addWidget(settings_widget_instance)
+tool_widget.addWidget(stats_widget_instance)
+
+
+#add tool selector and tool selector widget to layout
 main_layout.addWidget(tool_selector)
 main_layout.addWidget(tool_widget)
+
+#add buttons to layout
 tool_selector_layout.addWidget(pomodoro_timer_button)
 tool_selector_layout.addWidget(events_button)
 tool_selector_layout.addWidget(reminders_button)
 tool_selector_layout.addWidget(settings_button)
 tool_selector_layout.addWidget(stats_button)
 tool_selector_layout.addWidget(quit_button)
+
+#connect button functions
 pomodoro_timer_button.clicked.connect(lambda: tool_widget.setCurrentIndex(0))
 events_button.clicked.connect(lambda: tool_widget.setCurrentIndex(1))
 reminders_button.clicked.connect(lambda: tool_widget.setCurrentIndex(2))
 settings_button.clicked.connect(lambda: tool_widget.setCurrentIndex(3))
 stats_button.clicked.connect(lambda: tool_widget.setCurrentIndex(4))
-quit_button.clicked.connect(showquitpopup())
+quit_button.clicked.connect(showquitpopup)
 
-
-
-
-
+#show window and notify about background process
 window.show()
 tray.notify("spark-organizer", "Running in background")
 
+#exec app
 app.exec()

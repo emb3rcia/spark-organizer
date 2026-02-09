@@ -1,8 +1,10 @@
 #reused from my spark-builder project
 
+#imports built in
 import json
 import os
 
+#define default themes
 default_themes = {
     "dark": {
         "main_backgrounds": {
@@ -225,18 +227,23 @@ default_themes = {
     }
 }
 
+#define config path
 config_path = os.path.join(os.path.dirname(__file__), "..", "config")
 os.makedirs(config_path, exist_ok=True)
 themes_file = os.path.join(config_path, "themes.json")
 
+#values instead of "magic numbers"
+CORRUPTED = 1
+
 def get_themes():
+    # if file exists, try to read it, if error, return CORRUPTED, if file doesn't exist, create one and write default themes
     if os.path.isfile(themes_file):
         try:
             with open(themes_file, "r") as f:
                 themes_data = json.load(f)
                 return themes_data
         except json.JSONDecodeError:
-            return 1
+            return CORRUPTED
     else:
         tmp_file = themes_file + ".tmp"
         with open(tmp_file, "w") as f:
@@ -244,12 +251,14 @@ def get_themes():
         os.replace(tmp_file, themes_file)
         return default_themes
 
+#overwrite themes when corrupted, handled in corruption_helper.py
 def overwrite_themes():
     tmp_file = themes_file + ".tmp"
     with open(tmp_file, "w") as f:
         json.dump(default_themes, f, indent=4)
     os.replace(tmp_file, themes_file)
 
+#add theme at the end of file without truncating whole file
 def add_theme(theme_data, theme_name):
     tmp_file = themes_file + ".tmp"
     theme_data_file = {}
