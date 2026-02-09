@@ -7,6 +7,7 @@ class reminder_timer(QObject):
     def __init__(self, theme_data, window: QMainWindow, settings_data, tray, interval_ms=5000):
         super().__init__(None)
         self.window = window
+        self.msg = QMessageBox(self.window)
         self.tray = tray
         self.settings_data = settings_data
         self.theme_data = theme_data
@@ -26,14 +27,11 @@ class reminder_timer(QObject):
     def update_theme(self, theme_data):
         self.theme_data = theme_data
 
-    def sendPopup(self, title, text):
+    def setPopupStyleReminder(self, theme_data):
+        self.theme_data = theme_data
+        self.msg.setIcon(QMessageBox.Icon.Information)
 
-        msg = QMessageBox(self.window)
-        msg.setWindowTitle(title)
-        msg.setText(text)
-        msg.setIcon(QMessageBox.Icon.Information)
-
-        msg.setStyleSheet(f"""
+        self.msg.setStyleSheet(f"""
             QMessageBox {{
                 background-color: {self.theme_data['main_backgrounds']['popup_background']};
                 color: {self.theme_data['text']['text_primary']}
@@ -42,11 +40,14 @@ class reminder_timer(QObject):
         """
         )
 
-        msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
-        msg.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.msg.setWindowModality(Qt.WindowModality.ApplicationModal)
 
+    def sendPopup(self, title, text):
+        self.msg.setWindowTitle(title)
+        self.msg.setText(text)
         self.sound_effect.play()
-        msg.exec()
+        self.msg.exec()
 
     def check_reminders(self):
         now = QDateTime.currentDateTime(QTimeZone.systemTimeZone())

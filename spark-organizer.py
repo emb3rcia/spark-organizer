@@ -2,6 +2,7 @@ import os
 import sys
 
 from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QIcon
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget, QMessageBox
 
@@ -50,11 +51,20 @@ setTooltipStyle()
 tray = tray_helper(app, window)
 
 sound_file_path = os.path.join(os.path.dirname(__file__), "assets", "sounds", "error.wav")
+icon_file_path = os.path.join(os.path.dirname(__file__), "assets", "svg", "icon.svg")
+
+icon = QIcon(icon_file_path)
+window.setWindowIcon(icon)
+
+msg = QMessageBox(window)
 
 event_timer_object = event_timer(theme, window, settings_data, tray, 5000)
 event_timer_object.start()
 reminder_timer_object = reminder_timer(theme, window, settings_data, tray, 5000)
 reminder_timer_object.start()
+
+stats_widget_instance = stats_widget(theme)
+timer_widget_instance = timer_widget(theme, tray, stats_widget_instance, window)
 
 def refresh_settings():
     global settings_data, theme
@@ -68,6 +78,10 @@ def refresh_settings():
         window.update_theme(theme['main_backgrounds'])
         event_timer_object.update_theme(theme)
         reminder_timer_object.update_theme(theme)
+        set_quit_popup_style()
+        event_timer_object.setPopupStyleEvent(theme)
+        reminder_timer_object.setPopupStyleReminder(theme)
+        timer_widget_instance.setStylePopUpPhase(theme)
 
         for widget in window.findChildren(QWidget):
             if hasattr(widget, "update_theme"):
@@ -107,19 +121,20 @@ settings_button = Button("Settings", theme['button'], theme['text']['text_disabl
 stats_button = Button("Stats", theme['button'], theme['text']['text_disabled'])
 quit_button = Button("Quit app", theme['button'], theme['text']['text_disabled'])
 
+
+
 tool_widget = StackedWidget(theme['main_backgrounds'])
-tool_widget.addWidget(timer_widget(theme, tray, stats_widget))
+tool_widget.addWidget(timer_widget_instance)
 tool_widget.addWidget(events_widget(theme, tray))
 tool_widget.addWidget(reminder_widget(theme, tray))
 tool_widget.addWidget(settings_widget(theme, settings_data, refresh_settings, tray))
-tool_widget.addWidget(stats_widget(theme))
+tool_widget.addWidget(stats_widget_instance)
 
 sound_effect = QSoundEffect()
 sound_effect.setSource(QUrl.fromLocalFile(sound_file_path))
 sound_effect.setVolume(0.5)
 
-def showQuitPopup():
-    msg = QMessageBox(window)
+def set_quit_popup_style():
     msg.setWindowTitle("Quit confirmation")
     msg.setText("This will quit the app completely, if you want to minimize it to tray use X button. You sure you want to quit?")
     msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
@@ -174,6 +189,9 @@ def showQuitPopup():
     msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
     msg.setWindowModality(Qt.WindowModality.ApplicationModal)
 
+set_quit_popup_style()
+
+def showquitpopup():
     sound_effect.play()
     reply = msg.exec()
     if reply == QMessageBox.StandardButton.Yes:
@@ -193,7 +211,7 @@ events_button.clicked.connect(lambda: tool_widget.setCurrentIndex(1))
 reminders_button.clicked.connect(lambda: tool_widget.setCurrentIndex(2))
 settings_button.clicked.connect(lambda: tool_widget.setCurrentIndex(3))
 stats_button.clicked.connect(lambda: tool_widget.setCurrentIndex(4))
-quit_button.clicked.connect(showQuitPopup)
+quit_button.clicked.connect(showquitpopup())
 
 
 

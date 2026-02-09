@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QMessageBox
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QIntValidator, QColor
 
 from helpers.stats_helper import add_one_to_stat
 from styled_functions.styled_functions import Widget, Label, LineEdit, Button
@@ -19,7 +19,7 @@ BREAK = 2
 LONGER_BREAK = 3
 
 class timer_widget(QWidget):
-    def __init__(self, theme_data, tray, stats_widget):
+    def __init__(self, theme_data, tray, stats_widget, window):
         super().__init__()
         self.tray = tray
         self.paused = NOT_STARTED
@@ -30,7 +30,10 @@ class timer_widget(QWidget):
         self.stats_widget = stats_widget
         self.cycles = None
         self.passed_cycles = 0
+        self.window = window
+        self.msg = QMessageBox(self.window)
         self.theme_data = theme_data
+        self.setStylePopUpPhase(self.theme_data)
         self.sound_effect = QSoundEffect()
         self.sound_effect.setSource(QUrl.fromLocalFile(sound_effect_file))
         self.sound_effect.setVolume(0.5)
@@ -144,33 +147,55 @@ class timer_widget(QWidget):
             self.timer.start(1000)
             self.disableInputs(True)
             return
-    
 
     def showPhasePopup(self, title, text):
         self.timer.stop()
 
-        msg = QMessageBox(self)
-        msg.setWindowTitle(title)
-        msg.setText(text)
-        msg.setIcon(QMessageBox.Icon.Information)
+        self.msg.setWindowTitle(title)
+        self.msg.setText(text)
 
-        msg.setStyleSheet(f"""
-            QMessageBox {{
-                background-color: {self.theme_data['main_backgrounds']['popup_background']};
-                color: {self.theme_data['text']['text_primary']};
-                border: 1px solid {self.theme_data['accent']['info']};
-            }}
-        """
-        )
-
-        msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
-        msg.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setStylePopUpPhase(self.theme_data)
 
         self.sound_effect.play()
-        msg.exec()
-        
+        self.msg.exec()
+
         if self.paused == RUNNING:
             self.timer.start(1000)
+
+    def setStylePopUpPhase(self, theme_data):
+        self.msg.setIcon(QMessageBox.Icon.Information)
+
+        self.theme_data = theme_data
+
+        palette = self.msg.palette()
+        palette.setColor(self.msg.backgroundRole(), QColor(self.theme_data['main_backgrounds']['popup_background']))
+        palette.setColor(self.msg.foregroundRole(), QColor(self.theme_data['text']['text_primary']))
+        self.msg.setPalette(palette)
+
+        self.msg.setStyleSheet(f"""
+            QMessageBox {{
+                border: 1px solid {self.theme_data['accent']['info']};
+            }}
+            QMessageBox QPushButton {{
+                background-color: {self.theme_data['button']['button_background']};
+                color: {self.theme_data['button']['button_text']};
+                border: 1px solid {self.theme_data['button']['button_border']};
+                border-radius: 6px;
+            }}
+            QMessageBox QPushButton:hover {{
+                background-color: {self.theme_data['button']['button_hover']};
+            }}
+            QMessageBox QPushButton:pressed {{
+                background-color: {self.theme_data['button']['button_pressed']};
+            }}
+            QMessageBox QPushButton:disabled {{
+                background-color: {self.theme_data['button']['button_disabled']};
+                color: {self.theme_data['text']['text_disabled']};
+            }}
+        """)
+
+        self.msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.msg.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def updateDisplay(self):
         h = self.remaining_seconds // 3600

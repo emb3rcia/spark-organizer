@@ -1,4 +1,5 @@
 from PyQt6.QtCore import QObject, QTimer, QDateTime, QTimeZone, QUrl, Qt
+from PyQt6.QtGui import QColor
 from PyQt6.QtMultimedia import QSoundEffect
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from helpers.scheduled_helper import get_events, update_events
@@ -8,6 +9,7 @@ class event_timer(QObject):
         super().__init__(None)
         self.window = window
         self.tray = tray
+        self.msg = QMessageBox(self)
         self.settings_data = settings_data
         self.theme_data = theme_data
         self.sound_effect = QSoundEffect()
@@ -26,27 +28,45 @@ class event_timer(QObject):
     def update_theme(self, theme_data):
         self.theme_data = theme_data
 
-    def sendPopup(self, title, text):
+    def setPopupStyleEvent(self, theme_data):
+        self.theme_data = theme_data
+        self.msg.setIcon(QMessageBox.Icon.Information)
 
-        msg = QMessageBox(self.window)
-        msg.setWindowTitle(title)
-        msg.setText(text)
-        msg.setIcon(QMessageBox.Icon.Information)
+        palette = self.msg.palette()
+        palette.setColor(self.msg.backgroundRole(), QColor(self.theme_data['main_backgrounds']['popup_background']))
+        palette.setColor(self.msg.foregroundRole(), QColor(self.theme_data['text']['text_primary']))
+        self.msg.setPalette(palette)
 
-        msg.setStyleSheet(f"""
+        self.msg.setStyleSheet(f"""
             QMessageBox {{
-                background-color: {self.theme_data['main_backgrounds']['popup_background']};
-                color: {self.theme_data['text']['text_primary']}
-                border: 1px solid {self.theme_data['accent']['info']}
+                border: 1px solid {self.theme_data['accent']['info']};
             }}
-        """
-        )
+            QMessageBox QPushButton {{
+                background-color: {self.theme_data['button']['button_background']};
+                color: {self.theme_data['button']['button_text']};
+                border: 1px solid {self.theme_data['button']['button_border']};
+                border-radius: 6px;
+            }}
+            QMessageBox QPushButton:hover {{
+                background-color: {self.theme_data['button']['button_hover']};
+            }}
+            QMessageBox QPushButton:pressed {{
+                background-color: {self.theme_data['button']['button_pressed']};
+            }}
+            QMessageBox QPushButton:disabled {{
+                background-color: {self.theme_data['button']['button_disabled']};
+                color: {self.theme_data['text']['text_disabled']};
+            }}
+        """)
 
-        msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
-        msg.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.msg.setWindowModality(Qt.WindowModality.ApplicationModal)
 
+    def sendPopup(self, title, text):
+        self.msg.setWindowTitle(title)
+        self.msg.setText(text)
         self.sound_effect.play()
-        msg.exec()
+        self.msg.exec()
 
     def check_events(self):
         now = QDateTime.currentDateTime(QTimeZone.systemTimeZone())
