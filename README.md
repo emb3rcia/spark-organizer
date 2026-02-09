@@ -4,6 +4,7 @@ A productivity app originally written in C#, rewritten in Python as part of Hack
 # Requirements
 - Python 3.10+
 - PyQt6
+- Git ***(only for installations using `git clone`)***
 
 # Features
 - [Custom themes](#custom-themes)
