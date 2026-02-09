@@ -136,7 +136,7 @@ When clicking X on spark-organizer's window, it doesn't fully close it, instead,
 
 <a id="notifications"></a>
 <details>
-<summary><strong>Notifications (the appearance depends on the system and desktop enviorment used)</strong></summary>
+<summary><strong>Notifications (the appearance depends on the system and desktop enviornment used)</strong></summary>
   
 <img width="359" height="106" alt="Screenshot_20260209_113225" src="https://github.com/user-attachments/assets/7fa3c192-092c-43b0-bea9-552ade77cccd" />
 <img width="359" height="106" alt="Screenshot_20260209_113113" src="https://github.com/user-attachments/assets/b1979fcc-c83c-4e56-a21b-1b70ab1e19ca" />
