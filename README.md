@@ -6,6 +6,9 @@ A productivity app originally written in C#, rewritten in Python as part of Hack
 - PyQt6
 - Git ***(only for installations using `git clone`)***
 
+# Usage
+`python spark-organizer.py`
+
 # Features
 - [Custom themes](#custom-themes)
 - [Custom sounds](#custom-sounds)
@@ -77,10 +80,10 @@ Done! App uses your sounds!
 ## Pomodoro timer
 spark-organizer's feature number 1 is [Pomodoro](https://en.wikipedia.org/wiki/Pomodoro_Technique) timer. It's easy to use:
 - Open `Pomodoro Timer` tab
-- Set how many minutes the work time should be `(default: 25)`
-- Set how many minutes the break time should be `(default: 5)`
-- Set how many minutes the longer break time should be `(default: 15)`
-- Set how many cycles should be between the long breaks `(default: 4)`
+- Set how many minutes the work time should be **`(default: 25)`**
+- Set how many minutes the break time should be **`(default: 5)`**
+- Set how many minutes the longer break time should be **`(default: 15)`**
+- Set how many cycles should be between the long breaks **`(default: 4)`**
 - Click `Start timer`
 - To pause timer, click `Pause timer`
 - To resume timer, click `Resume timer`
@@ -120,7 +123,7 @@ spark-organizer's `Settings` tab allows you to change theme and amount of how ma
 spark-organizer tracks your stats such as work times started or cycles complete! Simply open the `Stats` tab!
 
 ## Background running in tray
-When clicking X on spark-organizer's window, it doesn't fully close it, instead, it runs in background and is accessible using your system's tray. To exit the app fully, click `Quit app` on main screen and follow the pop-up message.
+When clicking X on spark-organizer's window, it doesn't fully close it, instead, it runs in the background and is accessible using your system's tray. To exit the app fully, click `Quit app` on main screen and follow the pop-up message.
 
 # Screenshots
 <a id="pop-ups"></a>
@@ -136,7 +139,7 @@ When clicking X on spark-organizer's window, it doesn't fully close it, instead,
 
 <a id="notifications"></a>
 <details>
-<summary><strong>Notifications (the appearance depends on the system and desktop enviornment used)</strong></summary>
+<summary><strong>Notifications (the appearance depends on the system and desktop environment used)</strong></summary>
   
 <img width="359" height="106" alt="Screenshot_20260209_113225" src="https://github.com/user-attachments/assets/7fa3c192-092c-43b0-bea9-552ade77cccd" />
 <img width="359" height="106" alt="Screenshot_20260209_113113" src="https://github.com/user-attachments/assets/b1979fcc-c83c-4e56-a21b-1b70ab1e19ca" />
